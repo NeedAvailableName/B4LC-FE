@@ -1,28 +1,35 @@
-import React from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
-import Link from "next/link";
+import React from 'react';
+import { AiOutlinePlusCircle } from 'react-icons/ai';
+import Link from 'next/link';
 // import { Toggle } from "../components";
-import Image from "next/image";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { HiOutlineDocumentPlus } from "react-icons/hi2";
+import Image from 'next/image';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { HiOutlineDocumentPlus } from 'react-icons/hi2';
+import { useDisconnect } from 'wagmi';
+import { Button } from '@mui/material';
+import { signOut } from 'next-auth/react';
+import AppDropDown from '../components/AppDropDown';
+
 interface IHeader {
   search?: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default function Header({ search }: IHeader) {
+  const { disconnect } = useDisconnect();
   return (
-    <header className="w-full flex justify-between h-20 items-center border-b p-4 border-border-light dark:border-border-dark">
-      {/* <div className=" w-1/3">
-        <Link href={"/home"}>
-          <Image
+    <header className="w-full flex justify-center items-center border-b p-4 border-border-light dark:border-border-dark">
+      <div className=" w-1/3">
+        <Link href={'/'}>
+          B4LC
+          {/* <Image
             className="cursor-pointer"
             src="/logo.png"
             alt="Decentralized YouTube"
             height={80}
             width={100}
-          />
+          /> */}
         </Link>
-      </div> */}
+      </div>
       <div className=" w-1/3 flex justify-center items-center">
         {search ? (
           <input
@@ -35,20 +42,8 @@ export default function Header({ search }: IHeader) {
       </div>
 
       <div className=" w-1/3 flex justify-end items-center">
-        {/* <Link href="/upload">
-          <HiOutlineDocumentPlus
-            size="30px"
-            className="mr-8 dark:fill-icons-dark cursor-pointer"
-          />
-        </Link> */}
-        {/* <Toggle /> */}
-        <div className="ml-10">
-          <ConnectButton
-            label="Connect Wallet"
-            // accountStatus="address"
-            showBalance={true}
-            chainStatus="none"
-          />
+        <div className="ml-10 flex">
+          <AppDropDown></AppDropDown>
         </div>
       </div>
     </header>

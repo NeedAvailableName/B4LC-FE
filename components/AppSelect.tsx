@@ -7,19 +7,22 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 
 export default function AppSelect({
     label = '',
-    elements,
+    elements = [],
+    disabled=false,
     ...props
 }) {
   const [option, setOption] = React.useState('');
 
   const handleChange = (event: SelectChangeEvent) => {
+    console.log('e: ', event.target.value)
     setOption(event.target.value as string);
+    props.onChange(event.target.value as string);
   };
 
   return (
     <Box sx={{ minWidth: 120 }}>
-      <FormControl fullWidth className='bg-white'>
-        <InputLabel id="demo-simple-select-label">{label}</InputLabel>
+      <FormControl fullWidth required className='bg-white'>
+        <InputLabel id="demo-simple-select-label" disabled={disabled}>{label}</InputLabel>
         <Select
           labelId="demo-simple-select-label"
           id="demo-simple-select"
@@ -27,7 +30,7 @@ export default function AppSelect({
           label={label}
           onChange={handleChange}
         >
-        {elements.map((item) => {
+        {elements?.map((item) => {
             return <MenuItem value={item}>{item}</MenuItem>
         })}
         </Select>

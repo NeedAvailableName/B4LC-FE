@@ -7,17 +7,16 @@ import { SiweMessage } from 'siwe';
 import axios from 'axios';
 
 const getUserInfo = async (address: string) => {
-  const response = await axios.post(
+  const response = await axios.get(
     'http://localhost:8000/user',
-    { userAddress: address },
     {
       headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${address}`,
       },
-      withCredentials: true,
     },
   );
+  console.log('res: ', response.data)
   return response.data;
 };
 
@@ -53,10 +52,12 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
 
           await siwe.verify({ signature: credentials?.signature || '' });
           const user = await getUserInfo(siwe.address);
+          console.log('user: ', user)
           if (user) {
             return user;
           }
         } catch (e) {
+          console.log('e', e)
           return null;
         }
       },
@@ -80,6 +81,7 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
     callbacks: {
       async jwt({ token, user }) {
         if (user) {
+          token.name = user?.username;
           token.role = user?.role;
           token.address = user.address;
         }
@@ -88,7 +90,8 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
       async session({ session, token }) {
         session.address = token.address;
         session.user = {
-          name: token.address,
+          name: token.name,
+          address: token.address,
           role: token.role,
         };
         return session;

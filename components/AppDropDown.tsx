@@ -1,0 +1,63 @@
+import * as React from 'react';
+import Button from '@mui/material/Button';
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
+import { useAccount } from 'wagmi';
+import { useDisconnect } from 'wagmi';
+import { signOut } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
+import { Configs } from '../app-configs';
+import { useRouter } from 'next/router';
+
+export default function AppDropDown() {
+  const { data, status } = useSession();
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const account = useAccount();
+  const { disconnect } = useDisconnect();
+  return (
+    <div>
+      <Button
+        id="basic-button"
+        aria-controls={open ? 'basic-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClick}
+      >
+        {data?.address
+          ? data.address.substring(0, 4) +
+            '...' +
+            data.address.substring(data.address.length - 4)
+          : 'Login'}
+      </Button>
+      <Menu
+        id="basic-menu"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        MenuListProps={{
+          'aria-labelledby': 'basic-button',
+        }}
+      >
+        <MenuItem onClick={() => router.push('/user/profile')}>Profile</MenuItem>
+        <MenuItem
+          onClick={() => {
+            signOut({
+              callbackUrl: Configs.BASE_URL,
+            });
+            disconnect();
+          }}
+        >
+          Logout
+        </MenuItem>
+      </Menu>
+    </div>
+  );
+}

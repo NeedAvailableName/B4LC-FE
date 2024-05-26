@@ -24,22 +24,24 @@ import {
   viaBankPaymentMethod,
   cryptoPaymentMethod,
   Configs,
-  tokenAddress
+  tokenAddress,
 } from '../app-configs';
 import CircularProgress from '@mui/material/CircularProgress';
 import Layout from '.';
-import { useFormControl, FormControl } from '@mui/material';
-import AppAlert from '../components/AppAlert';
 import { useRouter } from 'next/router';
+import AppAlert from '../components/AppAlert';
+import { ISalesContract } from '../types';
 
-export default function NewSalesContract() {
+export default function UpdateSalesContract() {
   const { data, status } = useSession();
-  const router = useRouter();
-  const formControl = useFormControl();
   const [loading, setLoading] = useState<Boolean>(false);
   const [customerList, setCustomerList] = useState<string[]>([]);
   const [bankList, setBankList] = useState<string[]>([]);
-  const [deadline, setDeadline] = useState();
+  const [success, setSuccess] = useState(null);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState();
+  const router = useRouter();
+  const { id } = router.query;
 
   const getAllCustomer = async () => {
     try {
@@ -77,56 +79,40 @@ export default function NewSalesContract() {
     }
   };
 
-  useEffect(() => {
-    getAllCustomer();
-    getAllBank();
-  }, []);
+  const defaultFormData = async () => {
+    try {
+      const response = await axios.get(
+        `${Configs.BASE_API}/salescontracts/${id}`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
+        },
+      );
+      if (response.data) {
+        setFormData(response.data);
+      }
+    } catch (error) {
+      setError(error.message);
+      console.log(error);
+    }
+  };
 
-  const [formData, setFormData] = useState({
-    importer: '',
-    exporter: '',
-    issuingBank: '',
-    advisingBank: '',
-    commodity: [
-      {
-        description: '',
-        quantity: '',
-        unit: '',
-      },
-    ],
-    price: '',
-    currency: '',
-    paymentMethod: '',
-    requiredDocument: {
-      bill_of_exchange: false,
-      invoice: false,
-      bill_of_lading: false,
-      insurance: false,
-      quantity_quality_certificate: false,
-      certificate_of_origin: false,
-      package_list: false,
-    },
-    additionalInfo: '',
-    shipmentInformation: {
-      from: '',
-      to: '',
-      partialShipment: false,
-      transhipment: false,
-      latestShipmentDate: '',
-    },
-    deadline: '',
-    token: ''
-  });
+  useEffect(() => {
+    if (status == 'authenticated' && id != null) {
+      getAllCustomer();
+      getAllBank();
+      defaultFormData();
+    }
+  }, [status, id]);
 
   const [importer, setImporter] = useState('');
   const [exporter, setExporter] = useState('');
   const [issuingBank, setIssuingBank] = useState('');
   const [advisingBank, setAdvisingBank] = useState('');
-  const [success, setSuccess] = useState(null);
-  const [error, setError] = useState(null);
 
   const handleImporterChange = (value) => {
-    console.log('value: ', value);
     setImporter(value);
     setFormData((prevState) => ({
       // Update formData state
@@ -156,16 +142,6 @@ export default function NewSalesContract() {
       // Update formData state
       ...prevState,
       advisingBank: value,
-    }));
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    console.log('target: ', name, value, type, checked);
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]:
-        name === 'importer' ? value : type === 'checkbox' ? checked : value,
     }));
   };
 
@@ -236,11 +212,15 @@ export default function NewSalesContract() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = tokenAddress.find(token => token.name === formData.currency)
-      token ? formData.token === token.address : formData.token === '0x0000000000000000000000000000000000000000'
       console.log('form data: ', formData);
-      const response = await axios.post(
-        `${Configs.BASE_API}/salescontracts/create`,
+      const token = tokenAddress.find(
+        (token) => token.name === formData?.currency,
+      );
+      token
+        ? formData?.token === token.address
+        : formData?.token === '0x0000000000000000000000000000000000000000';
+      const response = await axios.patch(
+        `${Configs.BASE_API}/salescontracts/${id}`,
         formData,
         {
           headers: {
@@ -252,7 +232,7 @@ export default function NewSalesContract() {
       console.log(response.data);
       if (response.data) {
         setSuccess(response.data.message);
-        router.push('/sales-contracts')
+        window.location.href = '/sales-contracts';
       }
     } catch (error) {
       setError(error.message);
@@ -328,19 +308,19 @@ export default function NewSalesContract() {
                   <Typography className="">Commodity value</Typography>
                   <AppTextInput
                     onChange={handlePriceChange}
-                    label="Commodity value"
                     className="bg-white max-w-sm"
+                    placeholder={formData?.price}
                   />
                 </div>
                 <div>
                   <Typography>Currency</Typography>
-                  {formData.paymentMethod === 'Via Bank' && (
+                  {formData?.paymentMethod === 'Via Bank' && (
                     <AppSelect
                       elements={viaBankPaymentMethod}
                       onChange={handleCurrencyChange}
                     />
                   )}
-                  {formData.paymentMethod === 'Crypto' && (
+                  {formData?.paymentMethod === 'Crypto' && (
                     <AppSelect
                       elements={cryptoPaymentMethod}
                       onChange={handleCurrencyChange}
@@ -363,7 +343,7 @@ export default function NewSalesContract() {
                       key={index}
                       control={
                         <Checkbox
-                          checked={formData.requiredDocument[item.name]}
+                          checked={formData?.requiredDocument[item?.name]}
                           onChange={handleDocumentChange}
                           name={item.name}
                         />
@@ -379,7 +359,7 @@ export default function NewSalesContract() {
                 <Container className="columns-2">
                   <div className="m-2">
                     <AppTextInput
-                      placeholder="From"
+                      placeholder={formData?.shipmentInformation?.from}
                       onChange={(e) =>
                         handleShipmentInforChange('from', e.target.value)
                       }
@@ -387,7 +367,7 @@ export default function NewSalesContract() {
                   </div>
                   <div className="m-2">
                     <AppTextInput
-                      placeholder="To"
+                      placeholder={formData?.shipmentInformation?.to}
                       onChange={(e) =>
                         handleShipmentInforChange('to', e.target.value)
                       }
@@ -402,7 +382,7 @@ export default function NewSalesContract() {
                         key={index}
                         control={
                           <Checkbox
-                            checked={formData.shipmentInformation[item.name]}
+                            checked={formData?.shipmentInformation[item.name]}
                             onChange={(e) =>
                               handleShipmentInforChange(
                                 item.name,
@@ -430,6 +410,7 @@ export default function NewSalesContract() {
                   <AppTextInput
                     rows={3}
                     onChange={handleAdditionalInfoChange}
+                    placeholder={formData?.additionalInfo}
                   />
                 </div>
               </Container>
@@ -438,7 +419,7 @@ export default function NewSalesContract() {
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
                   type="submit"
                 >
-                  Create Letter Of Credit
+                  Update Sales Contract
                 </Button>
               </div>
             </form>

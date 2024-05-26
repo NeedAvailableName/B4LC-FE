@@ -1,29 +1,28 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
-import { useForm, useFormContext } from 'react-hook-form';
+import { Controller, useForm, useFormContext } from 'react-hook-form';
 
-export default function AppTextInput({
-  name,
-  ...props
-}) {
+export default function AppTextInput({ rows, placeholder, disabled = false, ...props }) {
   const [inputValue, setInputValue] = React.useState('');
-  const { register, formState: { errors } } = useForm();
   return (
     <Box
       component="form"
       sx={{
-        '& .MuiTextField-root': { m: 1, width: '100%' },
+        '& .MuiTextField-root': {width: '100%' },
       }}
       noValidate
       autoComplete="off"
     >
-      <div className="w-full p-2 rounded ">
+      <div className="w-5/6 rounded ">
         <TextField
+          multiline={true}
+          rows={rows}
           className="bg-white"
           id="outlined-required"
-          {...register(name)}
           {...props}
+          placeholder={placeholder}
+          disabled={disabled}
         />
       </div>
     </Box>

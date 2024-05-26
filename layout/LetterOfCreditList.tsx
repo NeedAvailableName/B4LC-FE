@@ -11,45 +11,50 @@ import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Configs } from '../app-configs';
+import ApolloClient from '../clients/apollo';
+import { Alert } from '@mui/material';
 import AppAlert from '../components/AppAlert';
 
-export default function SalesContractsList() {
+export default function LcList() {
   const { data, status } = useSession();
-  console.log('data: ', data?.address);
-  const [salesContractsList, setSalesContractsList] = React.useState([]);
+  console.log('status: ', status);
+  const [LcList, setLcList] = React.useState([]);
   const [error, setError] = React.useState(null);
   const router = useRouter();
-  const handleOnClick = (contract) => {
-    router.push(`/sales-contracts/${contract.salescontract_id}`);
+  const handleOnClick = (LC) => {
+    router.push(`/letter-of-credits/${LC._id}`);
   };
-  const getSalesContractsList = async () => {
+  const getLcList = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/salescontracts`, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${data?.address}`,
+      const response = await axios.get(
+        'http://localhost:8000/letterofcredits',
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
         },
-      });
+      );
       if (response.data) {
         console.log('data: ', response.data);
-        setSalesContractsList(response.data);
+        setLcList(response.data);
       }
     } catch (err) {
       console.log(err);
-      setError(err.message);
+      setError(err);
+      // alert(err.message);
     }
   };
   React.useEffect(() => {
     if (status === 'authenticated') {
-      getSalesContractsList();
+      getLcList();
     }
   }, [status]);
   return (
     <>
-      {error && <AppAlert severity="error" message={error} />}
-      <div className="m-5">
-        <TableContainer component={Paper} className="rounded-2xl">
+      {error && <AppAlert severity="error" message={error.message} />}
+      <div className="m-10">
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
@@ -60,34 +65,32 @@ export default function SalesContractsList() {
                 <TableCell>Commodity</TableCell>
                 <TableCell>Price</TableCell>
                 <TableCell>Currency</TableCell>
-                <TableCell>Payment Method</TableCell>
-                <TableCell>Deadline</TableCell>
+                <TableCell>Start Date</TableCell>
                 <TableCell>Status</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {salesContractsList.map((contract) => (
+              {LcList.map((LC) => (
                 <TableRow
                   className="cursor-pointer"
-                  key={contract.salescontract_id}
-                  onClick={() => handleOnClick(contract)}
+                  key={LC.LCID}
+                  onClick={() => handleOnClick(LC)}
                 >
-                  <TableCell>{contract.importer}</TableCell>
-                  <TableCell>{contract.exporter}</TableCell>
-                  <TableCell>{contract.issuingBank}</TableCell>
-                  <TableCell>{contract.advisingBank}</TableCell>
+                  <TableCell>{LC.importerName}</TableCell>
+                  <TableCell>{LC.exporterName}</TableCell>
+                  <TableCell>{LC.issuingBankName}</TableCell>
+                  <TableCell>{LC.advisingBankName}</TableCell>
                   <TableCell>
                     <ul>
-                      {contract.commodity.map((item, index) => (
+                      {LC.commodity.map((item, index) => (
                         <li key={index}>{item.description}</li>
                       ))}
                     </ul>
                   </TableCell>
-                  <TableCell>{contract.price}</TableCell>
-                  <TableCell>{contract.currency}</TableCell>
-                  <TableCell>{contract.paymentMethod}</TableCell>
-                  <TableCell>{contract.deadlineInDate}</TableCell>
-                  <TableCell>{contract.status}</TableCell>
+                  <TableCell>{LC.price}</TableCell>
+                  <TableCell>{LC.currency}</TableCell>
+                  <TableCell>{LC.startDate}</TableCell>
+                  <TableCell>{LC.status}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

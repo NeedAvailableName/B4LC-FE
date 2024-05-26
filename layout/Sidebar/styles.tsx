@@ -1,5 +1,5 @@
 export const navItemStyle = {
-  width: '22px',
+  // width: '22px',
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',

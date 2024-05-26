@@ -1,26 +1,21 @@
-import * as React from 'react';
-import { useState } from 'react';
-import dayjs from 'dayjs';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo/index';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import React, { useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-export default function AppSelectDate({ field, onChange, ...props } : {field: any, onChange?: any}) {
-  const [selectedDate, setSelectedDate] = useState();
+export default function AppSelectDate({ onChange, ...props }) {
+  const [startDate, setStartDate] = useState(null);
+
+  const handleChange = (date) => {
+    setStartDate(date);
+    onChange(date);
+  };
+
   return (
-    <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <DemoContainer components={['DatePicker']}>
-        <DatePicker
-          className="bg-white"
-          selected={selectedDate}
-          onChange={(date) => {
-            setSelectedDate(date);
-            onChange= () => {console.log("date: ", date)};
-            field && field.onChange(date);
-          }}
-        />
-      </DemoContainer>
-    </LocalizationProvider>
+    <DatePicker
+      className="bg-white border-black"
+      selected={startDate}
+      onChange={handleChange}
+      {...props}
+    />
   );
 }

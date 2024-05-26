@@ -5,7 +5,7 @@ import Checkbox from '@mui/material/Checkbox';
 import { Typography } from '@mui/material';
 import { useForm } from 'react-hook-form';
 
-export default function AppCheckBox({ field, label = '', elements }) {
+export default function AppCheckBox({ label = '', elements, ...props }) {
   const [itemArray, setItemArray] = React.useState([]);
   const { register, handleSubmit, watch, errors } = useForm();
   return (
