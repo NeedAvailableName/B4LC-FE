@@ -243,7 +243,7 @@ export default function UpdateSalesContract() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-full flex items-center justify-center rounded-2xl">
+        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (

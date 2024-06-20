@@ -12,8 +12,6 @@ import {
 import AppSelect from '../components/AppSelect';
 import AppRadio from '../components/AppRadio';
 import AppSelectDate from '../components/AppSelectDate';
-import AppCheckBox from '../components/AppCheckBox';
-import AppButton from '../components/AppButton';
 import Checkbox from '@mui/material/Checkbox';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
@@ -24,13 +22,14 @@ import {
   viaBankPaymentMethod,
   cryptoPaymentMethod,
   Configs,
-  tokenAddress
+  tokenAddress,
 } from '../app-configs';
 import CircularProgress from '@mui/material/CircularProgress';
 import Layout from '.';
 import { useFormControl, FormControl } from '@mui/material';
 import AppAlert from '../components/AppAlert';
 import { useRouter } from 'next/router';
+import AppLoading from '../components/AppLoading';
 
 export default function NewSalesContract() {
   const { data, status } = useSession();
@@ -115,7 +114,7 @@ export default function NewSalesContract() {
       latestShipmentDate: '',
     },
     deadline: '',
-    token: ''
+    token: '',
   });
 
   const [importer, setImporter] = useState('');
@@ -125,35 +124,30 @@ export default function NewSalesContract() {
   const [success, setSuccess] = useState(null);
   const [error, setError] = useState(null);
 
-  const handleImporterChange = (value) => {
-    console.log('value: ', value);
+  const handleImporterChange = (value: string) => {
     setImporter(value);
     setFormData((prevState) => ({
-      // Update formData state
       ...prevState,
       importer: value,
     }));
   };
-  const handleExporterChange = (value) => {
+  const handleExporterChange = (value: string) => {
     setExporter(value);
     setFormData((prevState) => ({
-      // Update formData state
       ...prevState,
       exporter: value,
     }));
   };
-  const handleIssuingBankChange = (value) => {
+  const handleIssuingBankChange = (value: string) => {
     setIssuingBank(value);
     setFormData((prevState) => ({
-      // Update formData state
       ...prevState,
       issuingBank: value,
     }));
   };
-  const handleAdvisingBankChange = (value) => {
+  const handleAdvisingBankChange = (value: string) => {
     setAdvisingBank(value);
     setFormData((prevState) => ({
-      // Update formData state
       ...prevState,
       advisingBank: value,
     }));
@@ -161,7 +155,6 @@ export default function NewSalesContract() {
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-    console.log('target: ', name, value, type, checked);
     setFormData((prevState) => ({
       ...prevState,
       [name]:
@@ -170,7 +163,6 @@ export default function NewSalesContract() {
   };
 
   const handleCommodityChange = (item) => {
-    console.log('items: ', item);
     const commodity = item.map(({ id, ...rest }) => rest);
     setFormData((prevState) => ({
       ...prevState,
@@ -203,27 +195,26 @@ export default function NewSalesContract() {
     }));
   };
 
-  const handleCurrencyChange = (value) => {
+  const handleCurrencyChange = (value: string) => {
     setFormData((prevState) => ({
       ...prevState,
       currency: value,
     }));
   };
 
-  const handlePaymentMethodChange = (value) => {
+  const handlePaymentMethodChange = (value: string) => {
     setFormData((prevState) => ({
-      // Update formData state
       ...prevState,
       paymentMethod: value,
     }));
   };
-  const handleDeadlineChange = (value) => {
+  const handleDeadlineChange = (value: string) => {
     setFormData((prevState) => ({
       ...prevState,
       deadline: value,
     }));
   };
-  const handleShipmentInforChange = (field: string, value) => {
+  const handleShipmentInforChange = (field: string, value: string) => {
     setFormData((prevState) => ({
       ...prevState,
       shipmentInformation: {
@@ -236,9 +227,12 @@ export default function NewSalesContract() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = tokenAddress.find(token => token.name === formData.currency)
-      token ? formData.token === token.address : formData.token === '0x0000000000000000000000000000000000000000'
-      console.log('form data: ', formData);
+      const token = tokenAddress.find(
+        (token) => token.name === formData.currency,
+      );
+      token
+        ? (formData.token = token.address)
+        : (formData.token = '0x0000000000000000000000000000000000000000');
       const response = await axios.post(
         `${Configs.BASE_API}/salescontracts/create`,
         formData,
@@ -252,7 +246,7 @@ export default function NewSalesContract() {
       console.log(response.data);
       if (response.data) {
         setSuccess(response.data.message);
-        router.push('/sales-contracts')
+        router.push(`/sales-contracts/${response.data.salescontract_id}`);
       }
     } catch (error) {
       setError(error.message);
@@ -263,8 +257,8 @@ export default function NewSalesContract() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-full flex items-center justify-center rounded-2xl">
-          <CircularProgress />
+        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+          <AppLoading wrapperStyle={{ width: '30px' }} />
         </div>
       ) : (
         <>
@@ -418,7 +412,7 @@ export default function NewSalesContract() {
                   </FormGroup>
                   <Typography className="">Latest shipment date</Typography>
                   <AppSelectDate
-                    onChange={(value) =>
+                    onChange={(value: string) =>
                       handleShipmentInforChange('latestShipmentDate', value)
                     }
                   />
@@ -426,7 +420,7 @@ export default function NewSalesContract() {
               </Container>
               <Container className="pt-5">
                 <Typography className="">Additional Information</Typography>
-                <div className="justify-center w-3/4">
+                <div className="justify-center w-full">
                   <AppTextInput
                     rows={3}
                     onChange={handleAdditionalInfoChange}
@@ -438,7 +432,7 @@ export default function NewSalesContract() {
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
                   type="submit"
                 >
-                  Create Letter Of Credit
+                  Create Sales Contract
                 </Button>
               </div>
             </form>

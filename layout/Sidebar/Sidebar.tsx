@@ -22,7 +22,6 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { Configs } from '../../app-configs';
 
-
 const drawerWidth: number = 200;
 interface AppBarProps extends MuiAppBarProps {
   open?: boolean;
@@ -75,7 +74,7 @@ const Drawer = styled(MuiDrawer, {
 const SalesContractsMenu = [
   {
     nav: `${Configs.BASE_URL}/sales-contracts`,
-    name: 'Sales Contracts List'
+    name: 'Sales Contracts List',
   },
   {
     nav: `${Configs.BASE_URL}/sales-contracts/create`,
@@ -121,7 +120,7 @@ export default function Sidebar() {
           <List component="nav">
             <List
               sx={{ width: '100%', maxWidth: 300, bgcolor: 'background.paper' }}
-              className='h-dvh'
+              className="h-dvh"
               component="nav"
               aria-labelledby="nested-list-subheader"
             >

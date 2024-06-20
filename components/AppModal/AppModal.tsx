@@ -1,11 +1,13 @@
 import * as Dialog from '@radix-ui/react-dialog';
+import classNames from 'classnames/bind';
 import { useRef } from 'react';
+import { ENABLED_THEMES } from '../../app-configs/theme.enable';
 import styles from './AppModal.module.sass';
-import { IcCloseWithNoBg } from '../assets/svgs/index';
 
+const cx = classNames.bind(styles);
 function AppModal({
   closeRef,
-  closeIcon = <IcCloseWithNoBg />,
+  closeIcon,
   onOpenChange,
   hasCloseAfterConfirm = true,
   onConfirm = () => {},
@@ -45,21 +47,30 @@ function AppModal({
   const handleCancel = (e) => {
     onCancel(e);
     setTimeout(() => {
-      close.current.click();
+      close?.current?.click();
     }, 100);
   };
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange} modal={false}>
       <Dialog.Trigger asChild>
-        <div style={{ width: is100 ? '100%' : '', height: triggerBtnStyle }} className=''>
+        <div
+          style={{ width: is100 ? '100%' : '', height: triggerBtnStyle }}
+          className={cx('trigger-btn')}
+        >
           {triggerBtn}
         </div>
       </Dialog.Trigger>
       <Dialog.Portal>
-        <Dialog.Overlay className=''/>
+        <Dialog.Overlay className={cx('DialogOverlay')} />
         <Dialog.Content
-          style={{ width: width, height: height, ...contentStyle}}
-          className=''>
+          style={{
+            width: width,
+            height: height,
+            ...contentStyle,
+            ...ENABLED_THEMES.styles,
+          }}
+          className={cx('DialogContent')}
+        >
           {children}
           <div
             onKeyDown={handleKeyDown}
@@ -67,18 +78,21 @@ function AppModal({
               cancelBtn || submitBtn
                 ? {
                     display: 'flex',
-                    justifyContent: btnJustifyContent ? btnJustifyContent : 'flex-end',
+                    justifyContent: btnJustifyContent
+                      ? btnJustifyContent
+                      : 'flex-end',
                     gap: '16px',
                     ...btnBoxStyle,
                   }
                 : {}
-            }>
+            }
+          >
             {cancelBtn && <div onClick={handleCancel}>{cancelBtn}</div>}
             {submitBtn && <div onClick={handleConfirm}>{submitBtn}</div>}
           </div>
           {closeIcon && (
             <Dialog.Close asChild>
-              <div aria-label="Close" className='' ref={close}>
+              <div aria-label="Close" className={cx('closeBtn')} ref={close}>
                 {closeIcon}
               </div>
             </Dialog.Close>

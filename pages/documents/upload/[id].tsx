@@ -12,6 +12,7 @@ import {
   TableBody,
   TableCell,
   TableRow,
+  TextField,
   Typography,
 } from '@mui/material';
 import AppAlert from '../../../components/AppAlert';
@@ -20,6 +21,8 @@ import AppFileInput from '../../../components/AppFileInput';
 import { FormProvider, useForm } from 'react-hook-form';
 import AppSelect from '../../../components/AppSelect';
 import { IcEyePreview } from '../../../assets/svgs';
+import { LoadingButton } from '@mui/lab';
+import AppLoading from '../../../components/AppLoading';
 
 export default function UploadDocument() {
   const router = useRouter();
@@ -31,10 +34,17 @@ export default function UploadDocument() {
   const [success, setSuccess] = useState(null);
   const { data, status } = useSession();
   const [loading, setLoading] = useState(false);
+  const [fileLoading, setFileLoading] = useState(false);
+  const [OCRLoading, setOCRLoading] = useState(false);
   const [filePath, setFilePath] = useState(null);
-  const [docType, setDocType] = useState();
-  const [OCRformData, setOCRformData] = useState();
+  const [docType, setDocType] = useState<string>();
+  const [OCRformData, setOCRformData] = useState<Object>();
   const [curLC, setCurLC] = useState();
+  const [isEdit, setIsEdit] = useState(false);
+
+  const handleEditClick = () => {
+    setIsEdit(true);
+  };
 
   const getLcDetail = async () => {
     try {
@@ -49,7 +59,7 @@ export default function UploadDocument() {
         },
       );
       if (response.data) {
-        console.log(response.data)
+        console.log(response.data);
         setLoading(false);
         setCurLC(response.data);
         const trueKeys = Object.keys(
@@ -58,7 +68,7 @@ export default function UploadDocument() {
         setRequiredDocument(trueKeys);
       }
     } catch (err) {
-      setLoading(false);
+      // setLoading(false);
       console.log(err);
       setError(err.message);
     }
@@ -68,16 +78,8 @@ export default function UploadDocument() {
     if (status == 'authenticated' && id != null) getLcDetail();
   }, [status, id]);
 
-  const waitFor = (conditionFunction) => {
-    const poll = resolve => {
-      if(conditionFunction()) resolve();
-      else setTimeout(() => poll(resolve), 100);
-    }
-  
-    return new Promise(poll);
-  };
-
-  const uploadToCloud = async (uploadedFiles) => {
+  const uploadToCloud = async (uploadedFiles: File[]) => {
+    setFileLoading(true);
     const _documentDataForm = new FormData();
     (Array.from(uploadedFiles) ?? []).forEach((file) => {
       const modifiedFile = new File([file], file.name);
@@ -90,19 +92,19 @@ export default function UploadDocument() {
         _documentDataForm,
       );
       if (response.data) {
+        setFileLoading(false);
         console.log('file path: ', response.data);
         setFilePath(response.data);
         return response.data;
       }
     } catch (err) {
+      setFileLoading(false);
       setError(err.message);
     }
-  }
+  };
 
-  const handleFileChange = async (uploadedFiles) => {
-    // await uploadToCloud(uploadedFiles);
-    // waitFor(() => filePath != null);
-    
+  const handleFileChange = async (uploadedFiles: File[]) => {
+    setOCRLoading(true);
     const OCRformData = {
       doc_type: docType,
       image_url: await uploadToCloud(uploadedFiles),
@@ -114,52 +116,90 @@ export default function UploadDocument() {
         OCRformData,
       );
       if (response.data) {
+        setOCRLoading(false);
         console.log(response.data);
         setOCRformData(response.data.results);
+      } else {
+        setOCRLoading(false);
       }
     } catch (err) {
+      setOCRLoading(false);
       setError(err.message);
     }
   };
 
-  const handleDocTypeChange = async (value) => {
+  const handleDocTypeChange = async (value: string) => {
     setDocType(value);
+    setFilePath(null);
+    setOCRformData({});
   };
 
   const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-          const formData = {
-            file_path: filePath,
-            ...OCRformData
-          }
-          console.log('form data: ', formData);
-          const response = await axios.post(
-            `${Configs.BASE_API}/invoices/create/${id}`,
-            formData,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${data?.address}`,
-              },
-            },
-          );
-          console.log(response.data);
-          if (response.data) {
-            setSuccess(response.data.message);
-            router.push('/documents')
-          }
-        } catch (error) {
-          setError(error.message);
-          console.error(error);
-        }
+    setIsEdit(false);
+    e.preventDefault();
+    try {
+      const formData = {
+        file_path: filePath,
+        ...OCRformData,
+      };
+      let doc = '';
+      console.log('form data: ', formData);
+      switch (docType) {
+        case 'invoice':
+          doc = 'invoices';
+          break;
+        case 'bill_of_exchange':
+          doc = 'billofexchanges';
+          break;
+        case 'bill_of_lading':
+          doc = 'billofladings';
+          break;
+        case 'certificate_of_origin':
+          doc = 'certificateoforigins';
+          break;
+        case 'insurance':
+          doc = 'insurances';
+          break;
+        case 'package_list':
+          doc = 'packagelists';
+          break;
+        case 'quantity_quality_certificate':
+          doc = 'quantityqualitycretificates';
+          break;
+      }
+      const response = await axios.post(
+        `${Configs.BASE_API}/${doc}/create/${id}`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
+        },
+      );
+      console.log(response.data);
+      if (response.data) {
+        setSuccess(response.data.message);
+        router.push('/documents');
+      }
+    } catch (err) {
+      setError(err.message);
+      console.error(err);
+    }
+  };
+
+  const handleChange = (key, value) => {
+    setOCRformData({
+      ...OCRformData,
+      [key]: value,
+    });
   };
 
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-full flex items-center justify-center rounded-2xl">
-          <CircularProgress />
+        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+          <AppLoading />
         </div>
       ) : (
         <>
@@ -169,27 +209,29 @@ export default function UploadDocument() {
             <div className="bg-slate-50 m-5 rounded-2xl flex justify-center">
               {/* <form onSubmit={handleSubmit} className="w-full"> */}
               <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
-                <Grid item xs={12}>
+                <Grid item xs={12} className="m-3">
                   <AppFileInput
                     name="attachmentFile"
-                    placeholder="File văn bản"
+                    placeholder="Choose document file"
                     accept="application/pdf"
+                    required={true}
                     afterSelect={(uploadedFiles) =>
                       handleFileChange(uploadedFiles)
                     }
                   ></AppFileInput>
                 </Grid>
-                <Grid item xs={12}>
-                  <div className="mt-2.5 rounded-[10px] shadow-custom h-full bg-white mb-3.5 justify-center items-center">
+                <Grid item xs={12} className="">
+                  <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center">
+                    {fileLoading && <AppLoading></AppLoading>}
                     {filePath && (
                       <PdfViewer url={filePath} defaultScale="PageWidth" />
                     )}
-                    {!filePath && (
+                    {!filePath && !fileLoading && (
                       <div className="flex justify-center items-center flex-col">
                         <p className="">
                           <IcEyePreview />
                         </p>
-                        <span>Document file</span>
+                        <span>No document file</span>
                       </div>
                     )}
                   </div>
@@ -204,29 +246,46 @@ export default function UploadDocument() {
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <Table
-                    sx={{ width: '60', whiteSpace: 'nowrap' }}
-                    size="small"
-                    aria-label="a dense table"
-                  >
-                    <TableBody>
-                      {OCRformData &&
-                        Object.entries(OCRformData).map(([key, value]) => (
-                          <TableRow
-                            sx={{
-                              '&:last-child td, &:last-child th': { border: 0 },
-                            }}
-                          >
-                            <TableCell component="th" scope="row">
-                              {key}
-                            </TableCell>
-                            {typeof value != 'object' && <TableCell component="th" scope="row">
-                              {value}
-                            </TableCell>}
-                          </TableRow>
-                        ))}
-                    </TableBody>
-                  </Table>
+                  {OCRLoading ? (
+                    <AppLoading />
+                  ) : (
+                    <Table
+                      sx={{ width: '60', whiteSpace: 'nowrap' }}
+                      size="small"
+                      aria-label="a dense table"
+                    >
+                      <TableBody>
+                        {OCRformData &&
+                          Object.entries(OCRformData).map(([key, value]) => (
+                            <TableRow
+                              sx={{
+                                '&:last-child td, &:last-child th': {
+                                  border: 0,
+                                },
+                              }}
+                            >
+                              <TableCell component="th" scope="row">
+                                {key}
+                              </TableCell>
+                              <TableCell component="th" scope="row">
+                                {isEdit ? (
+                                  <TextField
+                                    className="w-full"
+                                    value={value}
+                                    onChange={(e) =>
+                                      handleChange(key, e.target.value)
+                                    }
+                                    size="small"
+                                  />
+                                ) : (
+                                  value
+                                )}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                      </TableBody>
+                    </Table>
+                  )}
                 </Grid>
               </Grid>
               {/* </form> */}
@@ -236,9 +295,9 @@ export default function UploadDocument() {
                 data?.address == curLC?.salesContract?.importerAddress) && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
-                  onClick={(e) => handleSubmit(e)}
+                  onClick={isEdit ? handleSubmit : handleEditClick}
                 >
-                  Upload
+                  {isEdit ? 'Upload' : 'Edit'}
                 </Button>
               )}
             </div>

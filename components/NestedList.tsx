@@ -15,7 +15,7 @@ const NestedItem = ({ item, children }: { item: string; children: any }) => {
   };
 
   return (
-    <List className='p-0'>
+    <List className="p-0">
       <ListItem onClick={handleIsOpen}>
         <ListItemText primary={item} />
         {isOpen ? <ExpandLess /> : <ExpandMore />}
@@ -24,9 +24,9 @@ const NestedItem = ({ item, children }: { item: string; children: any }) => {
         {children?.map((item) => (
           <Link href={item.nav}>
             <Collapse in={isOpen}>
-                <ListItem>
-                  <ListItemText primary={item.name}/>
-                </ListItem>
+              <ListItem>
+                <ListItemText primary={item.name} />
+              </ListItem>
             </Collapse>
           </Link>
         ))}

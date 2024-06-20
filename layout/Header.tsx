@@ -6,9 +6,10 @@ import Image from 'next/image';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { HiOutlineDocumentPlus } from 'react-icons/hi2';
 import { useDisconnect } from 'wagmi';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { signOut } from 'next-auth/react';
 import AppDropDown from '../components/AppDropDown';
+import Logo from '../assets/LC_Logo.png';
 
 interface IHeader {
   search?: React.Dispatch<React.SetStateAction<string>>;
@@ -19,15 +20,17 @@ export default function Header({ search }: IHeader) {
   return (
     <header className="w-full flex justify-center items-center border-b p-4 border-border-light dark:border-border-dark">
       <div className=" w-1/3">
-        <Link href={'/'}>
-          B4LC
-          {/* <Image
+        <Link href={'/'} className="flex items-center">
+          <Image
             className="cursor-pointer"
-            src="/logo.png"
-            alt="Decentralized YouTube"
-            height={80}
-            width={100}
-          /> */}
+            src={Logo}
+            alt="B4LC"
+            height={50}
+            width={50}
+          />
+          <Typography className="text-2xl font-semibold text-primary">
+            B4LC
+          </Typography>
         </Link>
       </div>
       <div className=" w-1/3 flex justify-center items-center">

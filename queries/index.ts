@@ -22,9 +22,7 @@ export const GET_CONTRACT_DETAIL = gql`
     $TradeFinanceAddress: Bytes = ""
     $TradeFinanceAddress1: Bytes = ""
   ) {
-    lcActors(
-      where: { TradeFinanceAddress: $TradeFinanceAddress }
-    ) {
+    lcActors(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
       TradeFinanceAddress
       advisingBank
       exporter
@@ -32,9 +30,7 @@ export const GET_CONTRACT_DETAIL = gql`
       issuingBank
       blockTimestamp
     }
-    lcInformations(
-      where: { TradeFinanceAddress: $TradeFinanceAddress1 }
-    ) {
+    lcInformations(where: { TradeFinanceAddress: $TradeFinanceAddress1 }) {
       TradeFinanceAddress
       activate
       addtionalInfo
@@ -57,6 +53,58 @@ export const GET_CONTRACT_DETAIL = gql`
       }
       status
       token
+    }
+  }
+`;
+
+export const GET_CONTRACT_ACTIVITIES = gql`
+  query contractActivities($TradeFinanceAddress: Bytes = "") {
+    approveLetterOfCredits(
+      where: { TradeFinanceAddress: $TradeFinanceAddress }
+    ) {
+      TradeFinanceAddress
+      transactionHash
+      blockTimestamp
+    }
+    rejectLetterOfCredits(
+      where: { TradeFinanceAddress: $TradeFinanceAddress }
+    ) {
+      TradeFinanceAddress
+      transactionHash
+      blockTimestamp
+    }
+    documentUploadeds(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
+      TradeFinanceAddress
+      documentHash
+      transactionHash
+      blockTimestamp
+    }
+  }
+`;
+
+export const GET_CONTRACT_PAYMENT = gql`
+  query contractPayment($TradeFinanceAddress: Bytes = "") {
+    fundEscroweds(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
+      TradeFinanceAddress
+      value
+      importer
+      issuingBank
+      transactionHash
+      blockTimestamp
+    }
+    fundPaids(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
+      TradeFinanceAddress
+      issuingBank
+      exporter
+      transactionHash
+      blockTimestamp
+    }
+    fundRefundeds(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
+      TradeFinanceAddress
+      issuingBank
+      importer
+      transactionHash
+      blockTimestamp
     }
   }
 `;

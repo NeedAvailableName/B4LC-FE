@@ -5,17 +5,13 @@ import { Configs, SALES_CONTRACT_STATUS } from '../../app-configs';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import {
-  Box,
   Button,
   Checkbox,
-  Container,
-  Divider,
   FormControlLabel,
-  FormGroup,
   Grid,
   Typography,
 } from '@mui/material';
-import getContract from '../../utils/contract';
+import { getContract } from '../../utils/contract';
 import { GET_CREATE_LC_EVENT } from '../../queries';
 import ApolloClient from '../../clients/apollo';
 import TableContainer from '@mui/material/TableContainer';
@@ -69,19 +65,17 @@ export default function SalesContractDetail() {
           curSalesContract?.token ??
           '0x0000000000000000000000000000000000000000',
       };
-      console.log('newLC: ', newLC);
       const tx = await contract.createLetterOfCredit(newLC);
       return await tx.wait();
     } catch (e) {
       setError(e.message);
-      console.log(e);
+      console.log('e: ', e.message);
     }
   };
-  const creatLC = async () => {
+  const createLC = async () => {
     try {
       setLoading(true);
       const tx = await createLcContract();
-      console.log(tx);
       if (tx) {
         let address = '';
         ApolloClient.query({
@@ -111,7 +105,7 @@ export default function SalesContractDetail() {
               );
               if (response.data) {
                 setLoading(false);
-                alert(response.data.message);
+                setSuccess(response.data.message);
                 router.push('/letter-of-credits');
               }
             }
@@ -121,6 +115,8 @@ export default function SalesContractDetail() {
             setError(err.message);
             console.log(err);
           });
+      } else {
+        setLoading(false);
       }
     } catch (e) {
       console.log('e', e);
@@ -141,7 +137,7 @@ export default function SalesContractDetail() {
       );
       if (response.data) {
         setSuccess(response.data.message);
-        router.push('/sales-contracts');
+        getSalesContractDetail();
       }
     } catch (e) {
       console.log(e);
@@ -161,7 +157,6 @@ export default function SalesContractDetail() {
         },
       );
       if (response.data) {
-        console.log('res: ', response.data);
         setCurSalesContract(response.data);
       }
     } catch (err) {
@@ -182,7 +177,7 @@ export default function SalesContractDetail() {
         },
       );
       if (response.data) {
-        setSuccess(response.data);
+        setSuccess(response.data.message);
         router.push(`/sales-contracts`);
       }
     } catch (err) {
@@ -198,7 +193,7 @@ export default function SalesContractDetail() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-full flex items-center justify-center rounded-2xl">
+        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
@@ -591,7 +586,7 @@ export default function SalesContractDetail() {
                 SALES_CONTRACT_STATUS.EXPORTER_APPROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
-                  onClick={creatLC}
+                  onClick={createLC}
                 >
                   Create Letter Of Credit
                 </Button>

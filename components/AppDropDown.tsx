@@ -8,6 +8,8 @@ import { signOut } from 'next-auth/react';
 import { useSession } from 'next-auth/react';
 import { Configs } from '../app-configs';
 import { useRouter } from 'next/router';
+import { Avatar } from '@mui/material';
+import { red } from '@mui/material/colors';
 
 export default function AppDropDown() {
   const { data, status } = useSession();
@@ -30,6 +32,7 @@ export default function AppDropDown() {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
+        className="text-2xl font-semibold text-primary"
       >
         {data?.address
           ? data.address.substring(0, 4) +
@@ -46,7 +49,9 @@ export default function AppDropDown() {
           'aria-labelledby': 'basic-button',
         }}
       >
-        <MenuItem onClick={() => router.push('/user/profile')}>Profile</MenuItem>
+        <MenuItem onClick={() => router.push('/user/profile')}>
+          Profile
+        </MenuItem>
         <MenuItem
           onClick={() => {
             signOut({

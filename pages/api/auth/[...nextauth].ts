@@ -5,10 +5,11 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
 import axios from 'axios';
+import { Configs } from '../../../app-configs';
 
 const getUserInfo = async (address: string) => {
   const response = await axios.get(
-    'http://localhost:8000/user',
+    `${Configs.BASE_API}/user`,
     {
       headers: {
         'Content-Type': 'application/json',

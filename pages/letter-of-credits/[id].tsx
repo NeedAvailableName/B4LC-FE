@@ -2,12 +2,15 @@ import axios from 'axios';
 import Layout from '../../layout';
 import { useSession } from 'next-auth/react';
 import {
+  CONTRACT_ADDRESS,
   Configs,
   LETTER_OF_CREDIT_STATUS,
+  PAYMENT_METHOD,
   SALES_CONTRACT_STATUS,
+  UPDATE_LETTER_OF_CREDIT_STATUS,
 } from '../../app-configs';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -25,21 +28,292 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import getContract from '../../utils/contract';
+import { getContract, getTokenContract } from '../../utils/contract';
 import { BLOCKCHAIN_SCAN_URL } from '../../app-configs';
 import Link from 'next/link';
 import AppAlert from '../../components/AppAlert';
-
+import { ethers, parseUnits } from 'ethers';
+import {
+  ICommodity,
+  IRequiredDocument,
+  IShipmentInformation,
+} from '../../types';
+import AppModal from '../../components/AppModal/AppModal';
+import AppRejectModal from '../../components/AppRejectModal';
+import AppSelectModal from '../../components/AppSelectModal';
+interface ILC {
+  letterOfCredit?: {
+    LcAddress: string;
+    status: string;
+    startDate: string;
+    rejectedReason: string;
+  };
+  salesContract?: {
+    importerName: string;
+    importerAddress: string;
+    exporterName: string;
+    exporterAddress: string;
+    issuingBankName: string;
+    issuingBankAddress: string;
+    advisingBankName: string;
+    advisingBankAddress: string;
+    commodity: ICommodity[];
+    price: string;
+    currency: string;
+    paymentMethod: string;
+    requiredDocument: IRequiredDocument;
+    shipmentInformation: IShipmentInformation;
+    additionalInfo: string;
+    deadlineInDate: string;
+    token: string;
+    status: string;
+  };
+}
 export default function LetterOfCreditDetail() {
   const router = useRouter();
   const { id } = router.query;
-  const [curLC, setcurLC] = useState();
+  const [curLC, setcurLC] = useState<ILC>();
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const { data, status } = useSession();
-  console.log('data: ', data);
   const [loading, setLoading] = useState(false);
+  const closeRef = useRef();
+
+  const escrowFund = async () => {
+    try {
+      setLoading(true);
+      const tokenContract = await getTokenContract(curLC?.salesContract?.token);
+      const tx = await tokenContract.approve(
+        CONTRACT_ADDRESS,
+        parseUnits(curLC?.salesContract.price, 18),
+      );
+      await tx.wait();
+      if (tx) {
+        const contract = await getContract();
+        const tx = await contract.escrowFund(
+          curLC?.letterOfCredit.LcAddress,
+          parseUnits(curLC?.salesContract.price, 18),
+        );
+        await tx.wait();
+        if (tx) {
+          const response = await axios.patch(
+            `${Configs.BASE_API}/letterofcredits/${id}/status`,
+            { status: LETTER_OF_CREDIT_STATUS.FUND_ESCROWED },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${data?.address}`,
+              },
+            },
+          );
+          if (response) {
+            setLoading(false);
+            setSuccess(response.data.message);
+            getLcDetail();
+          }
+        } else {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      console.log(err);
+      setError(err.message);
+    }
+  };
+
+  const payFund = async () => {
+    try {
+      setLoading(true);
+      const contract = await getContract();
+      const tx = await contract.payFund(curLC?.letterOfCredit.LcAddress);
+      await tx.wait();
+      if (tx) {
+        const response = await axios.patch(
+          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+          { status: LETTER_OF_CREDIT_STATUS.FUND_PAID },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data?.address}`,
+            },
+          },
+        );
+        if (response) {
+          setLoading(false);
+          setSuccess(response.data.message);
+          getLcDetail();
+        }
+      }
+    } catch (err) {
+      setError(err.message);
+      console.log(err);
+    }
+  };
+
+  const refundFund = async () => {
+    try {
+      setLoading(true);
+      const contract = await getContract();
+      const tx = await contract.refundFund(curLC?.letterOfCredit?.LcAddress);
+      await tx.wait();
+      if (tx) {
+        const response = await axios.patch(
+          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+          { status: LETTER_OF_CREDIT_STATUS.FUND_REVERTED },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data?.address}`,
+            },
+          },
+        );
+        if (response) {
+          setLoading(false);
+          setSuccess(response.data.message);
+          getLcDetail();
+        }
+      }
+    } catch (err) {
+      setError(err.message);
+      console.log(err);
+    }
+  };
+
+  // const updateLCStatus = async () => {
+  //   try {
+  //     setLoading(true);
+  //     const contract = await getContract();
+  //     const tx = await contract.changeLcStatus(curLC?.letterOfCredit?.LcAddress, newStatus);
+  //     await tx.wait();
+  //     if(tx) {
+  //       const response = await axios.patch(
+  //         `${Configs.BASE_API}/letterofcredits/${id}/status`,
+  //         { status: newStatus },
+  //         {
+  //           headers: {
+  //             'Content-Type': 'application/json',
+  //             Authorization: `Bearer ${data?.address}`,
+  //           },
+  //         },
+  //       );
+  //       if (response) {
+  //         setLoading(false);
+  //         setSuccess(response.data.message);
+  //         getLcDetail();
+  //       }
+  //     }
+  //   }
+  //   catch(err) {
+  //     setError(err.message);
+  //     console.log(err);
+  //   }
+  // }
+
+  const approveLC = async () => {
+    try {
+      setLoading(true);
+      const contract = await getContract();
+      const tx = await contract.approveLetterOfCredit(
+        curLC?.letterOfCredit?.LcAddress,
+      );
+      await tx.wait();
+      if (tx) {
+        const response = await axios.patch(
+          `${Configs.BASE_API}/letterofcredits/${id}/approve`,
+          {},
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data?.address}`,
+            },
+          },
+        );
+        if (response.data) {
+          setLoading(false);
+          setSuccess(response.data.message);
+        }
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+      console.log(err);
+    }
+  };
+
+  const rejectLC = async (reason) => {
+    try {
+      setLoading(true);
+      const contract = await getContract();
+      const tx = await contract.rejectLetterOfCredit(
+        curLC?.letterOfCredit?.LcAddress,
+      );
+      await tx.wait();
+      if (tx) {
+        const response = await axios.patch(
+          `${Configs.BASE_API}/letterofcredits/${id}/reject`,
+          { reason: reason },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data?.address}`,
+            },
+          },
+        );
+        if (response.data) {
+          setLoading(false);
+          setSuccess(response.data.message);
+        }
+      } else {
+        setLoading(false);
+      }
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+      console.log(err);
+    }
+  };
+
+  const updateLcStatus = async (status) => {
+    try {
+      setLoading(true);
+      // const contract = await getContract();
+      // const tx = await contract.changeLcStatus(
+      //   curLC?.letterOfCredit?.LcAddress,
+      //   status,
+      // );
+      // await tx.wait();
+      // if (tx) {
+      //   const response = await axios.patch(
+      //     `${Configs.BASE_API}/letterofcredits/${id}/status`,
+      //     { status: status },
+      //     {
+      //       headers: {
+      //         'Content-Type': 'application/json',
+      //         Authorization: `Bearer ${data?.address}`,
+      //       },
+      //     },
+      //   );
+      //   if (response.data) {
+      //     setLoading(false);
+      //     setSuccess(response.data.message);
+      //   }
+      // } else {
+      //   setLoading(false);
+      // }
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+      console.log(err);
+    }
+  };
 
   const getLcDetail = async () => {
     try {
@@ -72,12 +346,13 @@ export default function LetterOfCreditDetail() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-full flex items-center justify-center rounded-2xl">
+        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
         <>
           {error && <AppAlert severity="error" message={error} />}
+          {success && <AppAlert severity="success" message={success} />}
           <div className="bg-slate-50 m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
@@ -96,9 +371,9 @@ export default function LetterOfCreditDetail() {
                       >
                         <TableCell component="th" scope="row">
                           <a
-                            href={`${BLOCKCHAIN_SCAN_URL}/${curLC?.letterOfCredit?.LcAddress}`}
+                            href={`${BLOCKCHAIN_SCAN_URL}/address/${curLC?.letterOfCredit?.LcAddress}`}
                             target="_blank"
-                            className='text-blue-600'
+                            className="text-blue-600"
                           >
                             {curLC?.letterOfCredit?.LcAddress}
                           </a>
@@ -109,7 +384,13 @@ export default function LetterOfCreditDetail() {
                 </TableContainer>
               </Grid>
               <Grid item xs={12}>
-                <Link href={`/contracts/${curLC?.letterOfCredit?.LcAddress}`}>View contract</Link>
+                <div style={{ width: 'fit-content' }}>
+                  <Link href={`/contracts/${curLC?.letterOfCredit?.LcAddress}`}>
+                    <Tooltip title="View L/C stored on blockchain">
+                      <div>View Contract</div>
+                    </Tooltip>
+                  </Link>
+                </div>
               </Grid>
             </Grid>
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
@@ -497,34 +778,91 @@ export default function LetterOfCreditDetail() {
             </Grid>
           </div>
           <div className="m-5 rounded-2xl justify-center flex">
-            {/* importer edit the salescontracts */}
-            {data?.address == curLC?.importerAddress &&
-              curLC?.status == SALES_CONTRACT_STATUS.CREATED && (
+            {data?.address == curLC?.salesContract?.advisingBankAddress &&
+              curLC?.letterOfCredit?.status ==
+                LETTER_OF_CREDIT_STATUS.CREATED && (
                 <Button
-                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
-                  type="submit"
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
+                  onClick={approveLC}
                 >
-                  Update sales contract
+                  Approve
                 </Button>
               )}
-            {data?.address == curLC?.exporterAddress &&
-              curLC?.status == SALES_CONTRACT_STATUS.CREATED && (
+            {data?.address == curLC?.salesContract?.importerAddress &&
+              curLC?.salesContract?.paymentMethod == PAYMENT_METHOD.CRYPTO &&
+              curLC?.letterOfCredit?.status !==
+                LETTER_OF_CREDIT_STATUS.FUND_ESCROWED && (
                 <Button
-                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
-                  onClick={() => approveSalesContract()}
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
+                  onClick={escrowFund}
                 >
-                  Approve sales contract
+                  Escrow Fund
                 </Button>
               )}
-            {data?.address == curLC?.issuingBankAddress &&
-              curLC?.status == SALES_CONTRACT_STATUS.EXPORTER_APPROVED && (
+            {data?.address == curLC?.salesContract?.issuingBankAddress &&
+              curLC?.salesContract?.paymentMethod == PAYMENT_METHOD.CRYPTO &&
+              curLC?.letterOfCredit?.status !==
+                LETTER_OF_CREDIT_STATUS.FUND_PAID &&
+              curLC?.letterOfCredit?.status ===
+                LETTER_OF_CREDIT_STATUS.FUND_ESCROWED && (
                 <Button
-                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
-                  onClick={creatLC}
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
+                  onClick={payFund}
                 >
-                  Create Letter Of Credit
+                  Pay Fund
                 </Button>
               )}
+            {data?.address == curLC?.salesContract?.issuingBankAddress &&
+              curLC?.salesContract?.paymentMethod == PAYMENT_METHOD.CRYPTO &&
+              curLC?.letterOfCredit?.status !==
+                LETTER_OF_CREDIT_STATUS.FUND_REVERTED &&
+              curLC?.letterOfCredit?.status !==
+                LETTER_OF_CREDIT_STATUS.FUND_PAID && (
+                <Button
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
+                  onClick={refundFund}
+                >
+                  Refund Fund
+                </Button>
+              )}
+            {data?.address == curLC?.salesContract?.advisingBankAddress &&
+              curLC?.letterOfCredit?.status !=
+                LETTER_OF_CREDIT_STATUS.ADVISING_BANK_REJECTED && (
+                <AppRejectModal
+                  onConfirm={(reason) => rejectLC(reason)}
+                  confirmText="Confirm"
+                  cancelText="Cancel"
+                  triggerBtn={
+                    <Button className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5">
+                      Reject
+                    </Button>
+                  }
+                  closeRef={closeRef}
+                  icon={undefined}
+                  title="Rejected reason: "
+                  description={undefined}
+                  children={undefined}
+                ></AppRejectModal>
+              )}
+            {(data?.address == curLC?.salesContract?.advisingBankAddress ||
+              data?.address == curLC?.salesContract?.issuingBankAddress) && (
+              <AppSelectModal
+                options={UPDATE_LETTER_OF_CREDIT_STATUS}
+                onConfirm={(status) => updateLcStatus(status)}
+                confirmText="Confirm"
+                cancelText="Cancel"
+                triggerBtn={
+                  <Button className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5">
+                    Update Status
+                  </Button>
+                }
+                // closeRef={closeRef}
+                icon={undefined}
+                title="Choose one status: "
+                description={undefined}
+                children={undefined}
+              ></AppSelectModal>
+            )}
           </div>
         </>
       )}

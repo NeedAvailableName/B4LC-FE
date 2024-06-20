@@ -1,32 +1,41 @@
+import React, { useState, useEffect } from 'react';
 import {
-    Avatar,
+  Avatar,
   Card,
   CardActions,
   CardContent,
   CardHeader,
   Grid,
-  IconButton,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableRow,
-  Typography,
+  TextField,
+  IconButton,
+  Button,
 } from '@mui/material';
 import Layout from '../../layout';
 import axios from 'axios';
 import { Configs } from '../../app-configs';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { IUser } from '../../types';
-import AppButton from '../../components/AppButton';
 import { red } from '@mui/material/colors';
+import AppButton from '../../components/AppButton';
+import AppAlert from '../../components/AppAlert';
 
 export default function UserProfile() {
-  const { data, status } = useSession();
-  const [user, setUser] = useState<IUser>();
-  const [error, setError] = useState();
+  const { data } = useSession();
+  const [user, setUser] = useState();
+  const [editMode, setEditMode] = useState(false);
+  const [updatedUser, setUpdatedUser] = useState({
+    username: '',
+    email: '',
+    phoneNumber: '',
+  });
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+
   const getUserProfile = async () => {
     try {
       const response = await axios.get(`${Configs.BASE_API}/user`, {
@@ -37,17 +46,64 @@ export default function UserProfile() {
       });
       if (response.data) {
         setUser(response.data);
+        setUpdatedUser({
+          username: response.data.username,
+          email: response.data.email,
+          phoneNumber: response.data.phoneNumber,
+        });
       }
     } catch (err) {
       console.log(err);
       setError(err.message);
     }
   };
+
   useEffect(() => {
     getUserProfile();
   }, []);
+
+  const handleEdit = () => {
+    setEditMode(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      const response = await axios.put(
+        `${Configs.BASE_API}/user/change/profile`,
+        {
+          username: updatedUser.username,
+          email: updatedUser.email,
+          phoneNumber: updatedUser.phoneNumber,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
+        },
+      );
+      if (response) {
+        setSuccess(response.data.message);
+        getUserProfile();
+      }
+      setEditMode(false);
+    } catch (err) {
+      console.log(err);
+      setError(err.message);
+    }
+  };
+
+  const handleChange = (e) => {
+    setUpdatedUser({
+      ...updatedUser,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <Layout>
+      {success && <AppAlert severity="success" message={success} />}
+      {error && <AppAlert severity="error" message={error} />}
       <Grid
         container
         spacing={0}
@@ -74,60 +130,92 @@ export default function UserProfile() {
                   aria-label="a dense table"
                 >
                   <TableBody>
-                    <TableRow
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
+                    <TableRow>
+                      <TableCell component="th" scope="row">
+                        Username
+                      </TableCell>
+                      <TableCell>
+                        {editMode ? (
+                          <TextField
+                            defaultValue={user?.username}
+                            placeholder={user?.username}
+                            name="username"
+                            value={updatedUser.username}
+                            onChange={handleChange}
+                          />
+                        ) : (
+                          user?.username
+                        )}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
                       <TableCell component="th" scope="row">
                         Email
                       </TableCell>
-                      <TableCell component="th" scope="row">
-                        {user?.email}
+                      <TableCell>
+                        {editMode ? (
+                          <TextField
+                            defaultValue={user?.email}
+                            placeholder={user?.email}
+                            name="email"
+                            value={updatedUser.email}
+                            onChange={handleChange}
+                          />
+                        ) : (
+                          user?.email
+                        )}
                       </TableCell>
                     </TableRow>
-                    <TableRow
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
-                      <TableCell component="th" scope="row">
-                        Address
-                      </TableCell>
-                      <TableCell component="th" scope="row">
-                        {user?.address}
-                      </TableCell>
-                    </TableRow>
-                    <TableRow
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
+                    <TableRow>
                       <TableCell component="th" scope="row">
                         Phone number
                       </TableCell>
-                      <TableCell component="th" scope="row">
-                        {user?.phoneNumber}
+                      <TableCell>
+                        {editMode ? (
+                          <TextField
+                            defaultValue={user?.phoneNumber}
+                            placeholder={user?.phoneNumber}
+                            name="phoneNumber"
+                            value={updatedUser.phoneNumber}
+                            onChange={handleChange}
+                          />
+                        ) : (
+                          user?.phoneNumber
+                        )}
                       </TableCell>
                     </TableRow>
-                    <TableRow
-                      sx={{
-                        '&:last-child td, &:last-child th': { border: 0 },
-                      }}
-                    >
+                    <TableRow>
+                      <TableCell component="th" scope="row">
+                        Address
+                      </TableCell>
+                      <TableCell>{user?.address}</TableCell>
+                    </TableRow>
+                    <TableRow>
                       <TableCell component="th" scope="row">
                         Role
                       </TableCell>
-                      <TableCell component="th" scope="row">
-                        {user?.role}
-                      </TableCell>
+                      <TableCell>{user?.role}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
               </TableContainer>
             </CardContent>
             <CardActions className="justify-center">
-              <AppButton title="Update" />
+              {editMode ? (
+                <Button
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
+                  onClick={handleSave}
+                >
+                  Save
+                </Button>
+              ) : (
+                <Button
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
+                  onClick={handleEdit}
+                >
+                  Edit
+                </Button>
+              )}
             </CardActions>
           </Card>
         </Grid>
