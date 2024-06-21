@@ -25,7 +25,8 @@ function AppModal({
   cancelBtn,
   submitBtn,
 }) {
-  const close = closeRef ?? useRef();
+  const internalCloseRef = useRef();
+  const close = closeRef ?? internalCloseRef;
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {

@@ -2,10 +2,23 @@ import * as React from 'react';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 
+interface IAppButton {
+  title: any;
+  onClick: any;
+  children: any;
+  type: any;
+  bgColor: any;
+  textColor: any;
+  form: any;
+  icon: any;
+  isLoading: any;
+  additionalStyle: any;
+  buttonProps: any;
+}
 export default function AppButton({
   title = '',
   onClick = () => {},
-  children,
+  children: any,
   type = 'button',
   bgColor = '#3B84F5',
   textColor = '',
@@ -14,7 +27,7 @@ export default function AppButton({
   isLoading = false,
   additionalStyle = {},
   ...buttonProps
-}) {
+}: IAppButton) {
   return (
     <Button
       style={{

@@ -218,6 +218,7 @@ export default function DocumentDetail() {
                     {detailDoc &&
                       Object.entries(detailDoc).map(([key, value]) => (
                         <TableRow
+                          key={key}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}

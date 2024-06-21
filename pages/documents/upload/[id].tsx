@@ -258,6 +258,7 @@ export default function UploadDocument() {
                         {OCRformData &&
                           Object.entries(OCRformData).map(([key, value]) => (
                             <TableRow
+                              key={key}
                               sx={{
                                 '&:last-child td, &:last-child th': {
                                   border: 0,

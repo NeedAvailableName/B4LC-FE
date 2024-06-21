@@ -128,7 +128,7 @@ export default function ContractDetail() {
         <>
           {error && <AppAlert severity="error" message={error} />}
           {curLC?.lcActors?.map((item) => (
-            <div className="bg-slate-50 m-5 rounded-2xl flex">
+            <div className="bg-slate-50 m-5 rounded-2xl flex" key={item}>
               <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
                 <Grid item xs={12}>
                   <Typography className="font-semibold">
@@ -373,6 +373,7 @@ export default function ContractDetail() {
                         <TableBody>
                           {item?.commodity?.map((value) => (
                             <TableRow
+                              key={value}
                               sx={{
                                 '&:last-child td, &:last-child th': {
                                   border: 0,

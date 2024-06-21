@@ -22,7 +22,7 @@ const NestedItem = ({ item, children }: { item: string; children: any }) => {
       </ListItem>
       <List>
         {children?.map((item) => (
-          <Link href={item.nav}>
+          <Link href={item.nav} key={item}>
             <Collapse in={isOpen}>
               <ListItem>
                 <ListItemText primary={item.name} />

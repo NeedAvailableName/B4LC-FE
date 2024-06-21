@@ -578,6 +578,7 @@ export default function LetterOfCreditDetail() {
                     <TableBody>
                       {curLC?.salesContract?.commodity?.map((item) => (
                         <TableRow
+                          key={item.description}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}
@@ -616,6 +617,7 @@ export default function LetterOfCreditDetail() {
                         curLC?.salesContract?.requiredDocument ?? [],
                       ).map(([item, value]) => (
                         <TableRow
+                          key={item}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}
@@ -838,10 +840,7 @@ export default function LetterOfCreditDetail() {
                     </Button>
                   }
                   closeRef={closeRef}
-                  icon={undefined}
                   title="Rejected reason: "
-                  description={undefined}
-                  children={undefined}
                 ></AppRejectModal>
               )}
             {(data?.address == curLC?.salesContract?.advisingBankAddress ||
@@ -857,10 +856,7 @@ export default function LetterOfCreditDetail() {
                   </Button>
                 }
                 // closeRef={closeRef}
-                icon={undefined}
                 title="Choose one status: "
-                description={undefined}
-                children={undefined}
               ></AppSelectModal>
             )}
           </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
 
-function AppAlert({ severity, message }) {
+function AppAlert({ severity, message }: { severity: any; message: any }) {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {

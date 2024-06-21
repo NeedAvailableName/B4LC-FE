@@ -13,7 +13,13 @@ export default function AppCheckBox({ label = '', elements, ...props }) {
       <Typography>{label}</Typography>
       <FormGroup>
         {elements.map((item) => {
-          return <FormControlLabel control={<Checkbox name={item.name} />} label={item?.label} />;
+          return (
+            <FormControlLabel
+              key={item}
+              control={<Checkbox name={item.name} />}
+              label={item?.label}
+            />
+          );
         })}
       </FormGroup>
     </>

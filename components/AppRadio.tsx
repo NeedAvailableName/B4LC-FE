@@ -5,7 +5,14 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 
-export default function AppRadio({ className, elements, ...props } : {className?: string, elements: string[]}) {
+export default function AppRadio({
+  className,
+  elements,
+  ...props
+}: {
+  className?: string;
+  elements: string[];
+}) {
   const [value, setValue] = React.useState('');
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +30,12 @@ export default function AppRadio({ className, elements, ...props } : {className?
       >
         {elements.map((item) => {
           return (
-            <FormControlLabel value={item} control={<Radio required={true} />} label={item} />
+            <FormControlLabel
+              value={item}
+              key={item}
+              control={<Radio required={true} />}
+              label={item}
+            />
           );
         })}
       </RadioGroup>

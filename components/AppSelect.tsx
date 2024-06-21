@@ -41,7 +41,11 @@ export default function AppSelect({
           onChange={handleChange}
         >
           {elements?.map((item) => {
-            return <MenuItem value={item}>{item}</MenuItem>;
+            return (
+              <MenuItem key={item} value={item}>
+                {item}
+              </MenuItem>
+            );
           })}
         </Select>
       </FormControl>

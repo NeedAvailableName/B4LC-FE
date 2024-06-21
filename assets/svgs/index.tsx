@@ -48,7 +48,13 @@ export const IcCheck = () => (
   </svg>
 );
 
-export const IcChevronDown = ({ width, height }) => (
+export const IcChevronDown = ({
+  width,
+  height,
+}: {
+  width: any;
+  height: any;
+}) => (
   <svg
     width={width ?? 12}
     height={height ?? 12}
@@ -65,7 +71,13 @@ export const IcChevronDown = ({ width, height }) => (
     />
   </svg>
 );
-export const IcChevronDownLayout = ({ width, height }) => (
+export const IcChevronDownLayout = ({
+  width,
+  height,
+}: {
+  width: any;
+  height: any;
+}) => (
   <svg
     width={width ?? 24}
     height={height ?? 24}
@@ -83,7 +95,13 @@ export const IcChevronDownLayout = ({ width, height }) => (
   </svg>
 );
 
-export const IcChevronDownBlack = ({ width, height }) => {
+export const IcChevronDownBlack = ({
+  width,
+  height,
+}: {
+  width: any;
+  height: any;
+}) => {
   return (
     <svg
       width={width ?? '10'}
@@ -278,7 +296,7 @@ export const IcUploadDoc = ({ width = 20, height = 22 }) => (
   </svg>
 );
 
-export const IcOnTime = (props) => {
+export const IcOnTime = (props: any) => {
   if (props.type === 'small')
     return (
       <svg
@@ -1189,7 +1207,7 @@ export const IcBackNav = ({ color = '#505665' }) => {
   );
 };
 
-export const IcCloseWithNoBg = ({ color }) => {
+export const IcCloseWithNoBg = ({ color }: { color: any }) => {
   return (
     <svg
       width="22"
@@ -1208,7 +1226,13 @@ export const IcCloseWithNoBg = ({ color }) => {
   );
 };
 
-export const IcEditWork = ({ color, size = '25' }) => {
+export const IcEditWork = ({
+  color,
+  size = '25',
+}: {
+  color: any;
+  size: any;
+}) => {
   return (
     <svg
       width={size}
@@ -1460,7 +1484,7 @@ export const IcCategoryTask = () => {
   );
 };
 
-export const IcDrag = ({ color, size }) => {
+export const IcDrag = ({ color, size }: { color: any; size: any }) => {
   return (
     <svg
       width={size ?? '13'}
@@ -1595,7 +1619,15 @@ export const IcTaskCreateRecurence = () => {
   );
 };
 
-export const IcArrowRightBlack = ({ color, width = '7', height = '9' }) => {
+export const IcArrowRightBlack = ({
+  color,
+  width = '7',
+  height = '9',
+}: {
+  color: any;
+  width: any;
+  height: any;
+}) => {
   return (
     <svg
       width={width}
@@ -1846,7 +1878,7 @@ export const IcDeparmentLevel3 = () => {
     </svg>
   );
 };
-export const IcShieldCheck = ({ style }) => {
+export const IcShieldCheck = ({ style }: { style: any }) => {
   return (
     <svg
       style={{ ...style }}

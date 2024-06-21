@@ -356,6 +356,7 @@ export default function SalesContractDetail() {
                     <TableBody>
                       {curSalesContract?.commodity?.map((item) => (
                         <TableRow
+                          key={item.description}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}
@@ -394,6 +395,7 @@ export default function SalesContractDetail() {
                         curSalesContract?.requiredDocument ?? [],
                       ).map(([item, value]) => (
                         <TableRow
+                          key={item}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}
