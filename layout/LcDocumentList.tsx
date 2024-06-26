@@ -9,11 +9,16 @@ import axios from 'axios';
 import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import { useRouter } from 'next/router';
-import { Configs, LETTER_OF_CREDIT_STATUS, UserRole } from '../app-configs';
+import {
+  Configs,
+  LETTER_OF_CREDIT_STATUS,
+  LETTER_OF_CREDIT_STATUS_CONFIG,
+  UserRole,
+} from '../app-configs';
 import AppAlert from '../components/AppAlert';
 import { GrDocumentUpload } from 'react-icons/gr';
 import { FaEye } from 'react-icons/fa';
-import { TablePagination, Typography, styled } from '@mui/material';
+import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
 import NoDataTable from '../components/NoDataTable';
 import AppTablePagination from '../components/AppTablePagination';
 
@@ -76,6 +81,7 @@ export default function LcDocumentList() {
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.info.dark,
       color: theme.palette.common.white,
+      fontWeight: 600,
     },
     [`&.${tableCellClasses.body}`]: {
       fontSize: 14,
@@ -142,7 +148,29 @@ export default function LcDocumentList() {
                     <TableCell>{LC.price}</TableCell>
                     <TableCell>{LC.currency}</TableCell>
                     <TableCell>{LC.startDate}</TableCell>
-                    <TableCell>{LC.status}</TableCell>
+                    <TableCell>
+                      <Tooltip
+                        title={LETTER_OF_CREDIT_STATUS_CONFIG[LC.status]?.hint}
+                        placement="left"
+                      >
+                        <div
+                          style={{
+                            backgroundColor:
+                              LETTER_OF_CREDIT_STATUS_CONFIG[LC.status]
+                                ?.bgColor,
+                            color:
+                              LETTER_OF_CREDIT_STATUS_CONFIG[LC.status]?.color,
+                            padding: '8px 10px',
+                            borderRadius: '4px',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            width: 'fit-content',
+                          }}
+                        >
+                          {LETTER_OF_CREDIT_STATUS_CONFIG[LC.status]?.title}
+                        </div>
+                      </Tooltip>
+                    </TableCell>
                     <TableCell
                       className="cursor-pointer"
                       onClick={() => handleViewOnClick(LC)}

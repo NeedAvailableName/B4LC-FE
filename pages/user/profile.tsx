@@ -15,6 +15,7 @@ import {
   TextField,
   IconButton,
   Button,
+  Typography,
 } from '@mui/material';
 import Layout from '../../layout';
 import axios from 'axios';
@@ -113,7 +114,13 @@ export default function UserProfile() {
         style={{ minHeight: '100vh' }}
       >
         <Grid item>
-          <Card>
+          <Card className="bg-[#F4F7FF]">
+            {!user?.username && (
+              <Typography className="text-red-500 justify-center flex">
+                * Please update personal information before using the
+                application
+              </Typography>
+            )}
             <CardHeader
               avatar={
                 <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">

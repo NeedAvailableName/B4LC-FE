@@ -5,8 +5,10 @@ import {
   CONTRACT_ADDRESS,
   Configs,
   LETTER_OF_CREDIT_STATUS,
+  LETTER_OF_CREDIT_STATUS_CONFIG,
   PAYMENT_METHOD,
   SALES_CONTRACT_STATUS,
+  SALES_CONTRACT_STATUS_CONFIG,
   UPDATE_LETTER_OF_CREDIT_STATUS,
 } from '../../app-configs';
 import { useRouter } from 'next/router';
@@ -346,14 +348,14 @@ export default function LetterOfCreditDetail() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
         <>
           {error && <AppAlert severity="error" message={error} />}
           {success && <AppAlert severity="success" message={success} />}
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">L/C Address</Typography>
@@ -386,7 +388,10 @@ export default function LetterOfCreditDetail() {
               <Grid item xs={12}>
                 <div style={{ width: 'fit-content' }}>
                   <Link href={`/contracts/${curLC?.letterOfCredit?.LcAddress}`}>
-                    <Tooltip title="View L/C stored on blockchain">
+                    <Tooltip
+                      title="View L/C stored on blockchain"
+                      placement="right"
+                    >
                       <div>View Contract</div>
                     </Tooltip>
                   </Link>
@@ -418,13 +423,42 @@ export default function LetterOfCreditDetail() {
               </Grid>
               <Grid item xs={12}>
                 <Typography className="font-semibold">Status</Typography>
-                <Typography className="font-semibold text-blue-600">
-                  {curLC?.letterOfCredit?.status}
-                </Typography>
+                <Tooltip
+                  title={
+                    LETTER_OF_CREDIT_STATUS_CONFIG[
+                      curLC?.letterOfCredit?.status
+                    ]?.hint
+                  }
+                  placement="right"
+                >
+                  <div
+                    style={{
+                      backgroundColor:
+                        LETTER_OF_CREDIT_STATUS_CONFIG[
+                          curLC?.letterOfCredit?.status
+                        ]?.bgColor,
+                      color:
+                        LETTER_OF_CREDIT_STATUS_CONFIG[
+                          curLC?.letterOfCredit?.status
+                        ]?.color,
+                      padding: '8px 10px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      width: 'fit-content',
+                    }}
+                  >
+                    {
+                      LETTER_OF_CREDIT_STATUS_CONFIG[
+                        curLC?.letterOfCredit?.status
+                      ]?.title
+                    }
+                  </div>
+                </Tooltip>
               </Grid>
             </Grid>
           </div>
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -556,7 +590,7 @@ export default function LetterOfCreditDetail() {
               </Grid>
             </Grid>
           </div>
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -600,7 +634,7 @@ export default function LetterOfCreditDetail() {
               </Grid>
             </Grid>
           </div>
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -773,9 +807,36 @@ export default function LetterOfCreditDetail() {
               </Grid>
               <Grid item xs={12}>
                 <Typography className="font-semibold">Status</Typography>
-                <Typography className="font-semibold text-blue-600">
-                  {curLC?.salesContract?.status}
-                </Typography>
+                <Tooltip
+                  title={
+                    SALES_CONTRACT_STATUS_CONFIG[curLC?.salesContract?.status]
+                      ?.hint
+                  }
+                  placement="right"
+                >
+                  <div
+                    style={{
+                      backgroundColor:
+                        SALES_CONTRACT_STATUS_CONFIG[
+                          curLC?.salesContract?.status
+                        ]?.bgColor,
+                      color:
+                        SALES_CONTRACT_STATUS_CONFIG[
+                          curLC?.salesContract?.status
+                        ]?.color,
+                      padding: '8px 10px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      width: 'fit-content',
+                    }}
+                  >
+                    {
+                      SALES_CONTRACT_STATUS_CONFIG[curLC?.salesContract?.status]
+                        ?.title
+                    }
+                  </div>
+                </Tooltip>
               </Grid>
             </Grid>
           </div>

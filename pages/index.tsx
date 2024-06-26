@@ -22,8 +22,10 @@ const Home: NextPage = () => {
   const { data: session, status } = useSession();
   const { isConnected } = useAccount();
   useEffect(() => {
-    if (status === 'authenticated') {
+    if (status === 'authenticated' && session.user.name) {
       window.location.href = '/sales-contracts';
+    } else if (status === 'authenticated' && !session.user.name) {
+      window.location.href = '/user/profile';
     }
   }, [status]);
   return (

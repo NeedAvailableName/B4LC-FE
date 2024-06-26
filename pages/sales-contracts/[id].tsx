@@ -1,14 +1,19 @@
 import axios from 'axios';
 import Layout from '../../layout';
 import { useSession } from 'next-auth/react';
-import { Configs, SALES_CONTRACT_STATUS } from '../../app-configs';
+import {
+  Configs,
+  SALES_CONTRACT_STATUS,
+  SALES_CONTRACT_STATUS_CONFIG,
+} from '../../app-configs';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
   FormControlLabel,
   Grid,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { getContract } from '../../utils/contract';
@@ -24,6 +29,7 @@ import Paper from '@mui/material/Paper';
 import CircularProgress from '@mui/material/CircularProgress';
 import { ISalesContract } from '../../types';
 import AppAlert from '../../components/AppAlert';
+import AppRejectModal from '../../components/AppRejectModal';
 
 export default function SalesContractDetail() {
   const [curSalesContract, setCurSalesContract] = useState<ISalesContract>();
@@ -34,6 +40,7 @@ export default function SalesContractDetail() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const closeRef = useRef();
 
   const createLcContract = async () => {
     try {
@@ -145,6 +152,31 @@ export default function SalesContractDetail() {
     }
   };
 
+  const rejectSalesContract = async (reason) => {
+    try {
+      // setLoading(true);
+      // const response = await axios.patch(
+      //   `${Configs.BASE_API}/salescontracts/${id}/reject`,
+      //   { reason: reason },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //       Authorization: `Bearer ${data?.address}`,
+      //     },
+      //   },
+      // );
+      // if (response.data) {
+      //   setLoading(false);
+      //   setSuccess(response.data.message);
+      //   getSalesContractDetail();
+      // }
+    } catch (e) {
+      setLoading(false);
+      console.log(e);
+      setError(e.message);
+    }
+  };
+
   const getSalesContractDetail = async () => {
     try {
       const response = await axios.get(
@@ -193,14 +225,14 @@ export default function SalesContractDetail() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
         <>
           {error && <AppAlert severity="error" message={error} />}
           {success && <AppAlert severity="success" message={success} />}
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -334,7 +366,7 @@ export default function SalesContractDetail() {
               </Grid>
             </Grid>
           </div>
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -378,7 +410,7 @@ export default function SalesContractDetail() {
               </Grid>
             </Grid>
           </div>
-          <div className="bg-slate-50 m-5 rounded-2xl flex">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex">
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12}>
                 <Typography className="font-semibold">
@@ -548,9 +580,33 @@ export default function SalesContractDetail() {
               </Grid>
               <Grid item xs={12}>
                 <Typography className="font-semibold">Status</Typography>
-                <Typography className="font-semibold text-blue-600">
-                  {curSalesContract?.status}
-                </Typography>
+                <Tooltip
+                  title={
+                    SALES_CONTRACT_STATUS_CONFIG[curSalesContract?.status]?.hint
+                  }
+                  placement="right"
+                >
+                  <div
+                    style={{
+                      backgroundColor:
+                        SALES_CONTRACT_STATUS_CONFIG[curSalesContract?.status]
+                          ?.bgColor,
+                      color:
+                        SALES_CONTRACT_STATUS_CONFIG[curSalesContract?.status]
+                          ?.color,
+                      padding: '8px 10px',
+                      borderRadius: '4px',
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
+                      width: 'fit-content',
+                    }}
+                  >
+                    {
+                      SALES_CONTRACT_STATUS_CONFIG[curSalesContract?.status]
+                        ?.title
+                    }
+                  </div>
+                </Tooltip>
               </Grid>
             </Grid>
           </div>
@@ -577,11 +633,27 @@ export default function SalesContractDetail() {
             {data?.address == curSalesContract?.exporterAddress &&
               curSalesContract?.status == SALES_CONTRACT_STATUS.CREATED && (
                 <Button
-                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={() => approveSalesContract()}
                 >
                   Approve sales contract
                 </Button>
+              )}
+            {data?.address == curSalesContract?.exporterAddress &&
+              (curSalesContract?.status == SALES_CONTRACT_STATUS.CREATED ||
+                curSalesContract?.status == SALES_CONTRACT_STATUS.UPDATED) && (
+                <AppRejectModal
+                  onConfirm={(reason) => rejectSalesContract(reason)}
+                  confirmText="Confirm"
+                  cancelText="Cancel"
+                  triggerBtn={
+                    <Button className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5">
+                      Reject sales contract
+                    </Button>
+                  }
+                  closeRef={closeRef}
+                  title="Rejected reason"
+                ></AppRejectModal>
               )}
             {data?.address == curSalesContract?.issuingBankAddress &&
               curSalesContract?.status ==

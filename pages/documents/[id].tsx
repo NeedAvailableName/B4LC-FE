@@ -4,11 +4,12 @@ import { useSession } from 'next-auth/react';
 import {
   Configs,
   DOCUMENT_STATUS,
+  DOCUMENT_STATUS_CONFIG,
   LETTER_OF_CREDIT_STATUS,
   SALES_CONTRACT_STATUS,
 } from '../../app-configs';
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   CircularProgress,
@@ -20,6 +21,7 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import AppAlert from '../../components/AppAlert';
@@ -27,6 +29,7 @@ import { IDocument } from '../../types';
 import PdfViewer from '../../components/PdfViewer';
 import { IcEyePreview } from '../../assets/svgs';
 import AppSelect from '../../components/AppSelect';
+import { isExist } from '../../helpers/check';
 
 export default function DocumentDetail() {
   const router = useRouter();
@@ -171,21 +174,69 @@ export default function DocumentDetail() {
     }
   }, [status, id]);
 
+  const documentDetailInfo = useMemo(() => {
+    if (!detailDoc) return [];
+    return [
+      {
+        name: 'Status',
+        info: (
+          <Tooltip
+            title={DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.hint}
+            placement="left"
+          >
+            <div
+              style={{
+                backgroundColor:
+                  DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.bgColor,
+                color: DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.color,
+                padding: '8px 10px',
+                borderRadius: '4px',
+                fontWeight: 600,
+                whiteSpace: 'nowrap',
+                width: 'fit-content',
+              }}
+            >
+              {DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.title}
+            </div>
+          </Tooltip>
+        ),
+      },
+      {
+        name: 'Document file',
+        info: (
+          <a href={detailDoc?.file_path} target="_blank">
+            {detailDoc?.file_path?.split('/').pop()}
+          </a>
+        ),
+      },
+    ].filter((docInfo) => isExist(docInfo));
+  }, [detailDoc]);
+
+  detailDoc &&
+    Object.entries(detailDoc).map(([key, value]) => {
+      if (key !== 'status' && key !== 'file_path') {
+        documentDetailInfo.push({
+          name: key,
+          info: value,
+        });
+      }
+    });
+
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
         <>
           {success && <AppAlert severity="success" message={success} />}
           {error && <AppAlert severity="error" message={error} />}
-          <div className="bg-slate-50 m-5 rounded-2xl flex justify-center">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
             {/* <form onSubmit={handleSubmit} className="w-full"> */}
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
-              <Grid item xs={12} className="border-2 border-black">
-                <div className="rounded-[10px] shadow-custom h-96 bg-gray justify-center items-center content-center">
+              <Grid item xs={12} className="">
+                <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center bg-white">
                   {detailDoc && (
                     <PdfViewer
                       url={detailDoc?.file_path}
@@ -216,21 +267,36 @@ export default function DocumentDetail() {
                 >
                   <TableBody>
                     {detailDoc &&
-                      Object.entries(detailDoc).map(([key, value]) => (
+                      // Object.entries(detailDoc).map(([key, value]) => (
+                      //   <TableRow
+                      //     key={key}
+                      //     sx={{
+                      //       '&:last-child td, &:last-child th': { border: 0 },
+                      //     }}
+                      //   >
+                      //     <TableCell component="th" scope="row">
+                      //       {key}
+                      //     </TableCell>
+                      //     {typeof value != 'object' && (
+                      //       <TableCell component="th" scope="row">
+                      //         {value}
+                      //       </TableCell>
+                      //     )}
+                      //   </TableRow>
+                      // ))
+                      documentDetailInfo.map((item) => (
                         <TableRow
-                          key={key}
+                          key={item.name}
                           sx={{
                             '&:last-child td, &:last-child th': { border: 0 },
                           }}
                         >
                           <TableCell component="th" scope="row">
-                            {key}
+                            {item.name}
                           </TableCell>
-                          {typeof value != 'object' && (
-                            <TableCell component="th" scope="row">
-                              {value}
-                            </TableCell>
-                          )}
+                          <TableCell component="th" scope="row">
+                            {item.info}
+                          </TableCell>
                         </TableRow>
                       ))}
                   </TableBody>

@@ -8,16 +8,13 @@ import axios from 'axios';
 import { Configs } from '../../../app-configs';
 
 const getUserInfo = async (address: string) => {
-  const response = await axios.get(
-    `${Configs.BASE_API}/user`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${address}`,
-      },
+  const response = await axios.get(`${Configs.BASE_API}/user`, {
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${address}`,
     },
-  );
-  console.log('res: ', response.data)
+  });
+  console.log('res: ', response.data);
   return response.data;
 };
 
@@ -34,7 +31,7 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
             process.env.NEXTAUTH_URL ||
             (process.env.VERCEL_URL
               ? `https://${process.env.VERCEL_URL}`
-              : `http://localhost:3000`);
+              : Configs.BASE_URL);
           if (!nextAuthUrl) {
             return null;
           }
@@ -53,12 +50,12 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
 
           await siwe.verify({ signature: credentials?.signature || '' });
           const user = await getUserInfo(siwe.address);
-          console.log('user: ', user)
+          console.log('user: ', user);
           if (user) {
             return user;
           }
         } catch (e) {
-          console.log('e', e)
+          console.log('e', e);
           return null;
         }
       },

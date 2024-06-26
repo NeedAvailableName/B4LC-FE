@@ -18,17 +18,17 @@ interface IHeader {
 export default function Header({ search }: IHeader) {
   const { disconnect } = useDisconnect();
   return (
-    <header className="w-full flex justify-center items-center border-b p-4 border-border-light dark:border-border-dark">
-      <div className=" w-1/3">
-        <Link href={'/'} className="flex items-center">
+    <header className="w-full flex justify-center items-center border-b p-2 border-border-light dark:border-border-dark">
+      <div className=" w-1/3 ml-2">
+        <Link href={'/'} className="flex items-center w-fit">
           <Image
             className="cursor-pointer"
             src={Logo}
             alt="B4LC"
-            height={50}
-            width={50}
+            height={40}
+            width={40}
           />
-          <Typography className="text-2xl font-semibold text-primary">
+          <Typography className="text-2xl font-semibold text-primary ml-3">
             B4LC
           </Typography>
         </Link>

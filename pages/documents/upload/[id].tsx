@@ -68,7 +68,7 @@ export default function UploadDocument() {
         setRequiredDocument(trueKeys);
       }
     } catch (err) {
-      // setLoading(false);
+      setLoading(false);
       console.log(err);
       setError(err.message);
     }
@@ -198,7 +198,7 @@ export default function UploadDocument() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <AppLoading />
         </div>
       ) : (
@@ -206,7 +206,7 @@ export default function UploadDocument() {
           {error && <AppAlert severity="error" message={error} />}
           {success && <AppAlert severity="success" message={success} />}
           <FormProvider {...methods}>
-            <div className="bg-slate-50 m-5 rounded-2xl flex justify-center">
+            <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
               {/* <form onSubmit={handleSubmit} className="w-full"> */}
               <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
                 <Grid item xs={12} className="m-3">
@@ -221,7 +221,7 @@ export default function UploadDocument() {
                   ></AppFileInput>
                 </Grid>
                 <Grid item xs={12} className="">
-                  <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center">
+                  <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center bg-white">
                     {fileLoading && <AppLoading></AppLoading>}
                     {filePath && (
                       <PdfViewer url={filePath} defaultScale="PageWidth" />

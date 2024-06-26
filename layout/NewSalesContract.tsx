@@ -257,14 +257,14 @@ export default function NewSalesContract() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <AppLoading wrapperStyle={{ width: '30px' }} />
         </div>
       ) : (
         <>
           {error && <AppAlert severity="error" message={error} />}
           {success && <AppAlert severity="success" message={success} />}
-          <div className="bg-slate-50 m-5 rounded-2xl flex justify-center">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
             <form onSubmit={handleSubmit}>
               <Container className="columns-2 gap-10">
                 {/* Importer */}

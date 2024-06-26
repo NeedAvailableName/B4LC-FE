@@ -13,6 +13,7 @@ import { red } from '@mui/material/colors';
 
 export default function AppDropDown() {
   const { data, status } = useSession();
+  console.log('data', data);
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -32,13 +33,18 @@ export default function AppDropDown() {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        className="text-2xl font-semibold text-primary"
+        className="text-xl font-semibold text-primary"
       >
-        {data?.address
-          ? data.address.substring(0, 4) +
-            '...' +
-            data.address.substring(data.address.length - 4)
-          : 'Login'}
+        <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
+          {data?.address?.slice(2, 4)}
+        </Avatar>
+        <div className="ml-2">
+          {data?.address
+            ? data.address.substring(0, 4) +
+              '...' +
+              data.address.substring(data.address.length - 4)
+            : 'Login'}
+        </div>
       </Button>
       <Menu
         id="basic-menu"

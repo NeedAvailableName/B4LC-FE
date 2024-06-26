@@ -116,10 +116,10 @@ export default function Sidebar() {
               <ChevronLeftIcon />
             </IconButton>
           </Toolbar> */}
-          <Divider />
+          {/* <Divider /> */}
           <List component="nav">
             <List
-              sx={{ width: '100%', maxWidth: 300, bgcolor: 'background.paper' }}
+              sx={{ width: '100%', maxWidth: 300 }}
               className="h-dvh"
               component="nav"
               aria-labelledby="nested-list-subheader"

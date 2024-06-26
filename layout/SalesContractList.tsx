@@ -11,9 +11,9 @@ import TableContainer from '@mui/material/TableContainer';
 import Paper from '@mui/material/Paper';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Configs } from '../app-configs';
+import { Configs, SALES_CONTRACT_STATUS_CONFIG } from '../app-configs';
 import AppAlert from '../components/AppAlert';
-import { TablePagination, Typography, styled } from '@mui/material';
+import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
 import NoDataTable from '../components/NoDataTable';
 import AppTablePagination from '../components/AppTablePagination';
 
@@ -76,6 +76,7 @@ export default function SalesContractsList() {
     [`&.${tableCellClasses.head}`]: {
       backgroundColor: theme.palette.info.dark,
       color: theme.palette.common.white,
+      fontWeight: 600,
     },
     [`&.${tableCellClasses.body}`]: {
       fontSize: 14,
@@ -146,7 +147,32 @@ export default function SalesContractsList() {
                     <TableCell>{contract.currency}</TableCell>
                     <TableCell>{contract.paymentMethod}</TableCell>
                     <TableCell>{contract.deadlineInDate}</TableCell>
-                    <TableCell>{contract.status}</TableCell>
+                    <TableCell>
+                      <Tooltip
+                        title={
+                          SALES_CONTRACT_STATUS_CONFIG[contract.status]?.hint
+                        }
+                        placement="left"
+                      >
+                        <div
+                          style={{
+                            backgroundColor:
+                              SALES_CONTRACT_STATUS_CONFIG[contract.status]
+                                ?.bgColor,
+                            color:
+                              SALES_CONTRACT_STATUS_CONFIG[contract.status]
+                                ?.color,
+                            padding: '8px 10px',
+                            borderRadius: '4px',
+                            fontWeight: 600,
+                            whiteSpace: 'nowrap',
+                            width: 'fit-content',
+                          }}
+                        >
+                          {SALES_CONTRACT_STATUS_CONFIG[contract.status]?.title}
+                        </div>
+                      </Tooltip>
+                    </TableCell>
                   </StyledTableRow>
                 ))}
                 <TablePagination
