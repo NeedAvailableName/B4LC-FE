@@ -40,7 +40,7 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
       <Head>
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+          content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
         />
         <title>B4LC | Blockchain-based L/C managing system</title>
       </Head>
