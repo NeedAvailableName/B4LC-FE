@@ -14,7 +14,6 @@ const getUserInfo = async (address: string) => {
       Authorization: `Bearer ${address}`,
     },
   });
-  console.log('res: ', response.data);
   return response.data;
 };
 
@@ -50,7 +49,6 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
 
           await siwe.verify({ signature: credentials?.signature || '' });
           const user = await getUserInfo(siwe.address);
-          console.log('user: ', user);
           if (user) {
             return user;
           }

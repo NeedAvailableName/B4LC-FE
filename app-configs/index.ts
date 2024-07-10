@@ -1,6 +1,7 @@
 export const Configs = {
   BASE_URL: 'http://localhost:3000',
   BASE_API: 'http://localhost:8000',
+  // BASE_API: 'http://35.247.160.15:8000',
   OCR_API: 'https://ocr-template.onrender.com',
 };
 export const TOKEN_KEY = 'access_token';
@@ -10,23 +11,24 @@ export const cryptoPaymentMethod = ['USDC', 'LINK', 'NEAR', 'MATIC', 'FTMT'];
 export enum UserRole {
   CUSTOMER = 'user',
   BANK = 'bank',
+  ADMIN = 'admin',
 }
 export const tokenAddress = [
   {
     name: 'USDC',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x5B4ccec6f7E37163DB67717062911C1cd849d37d',
   },
   {
     name: 'LINK',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x155154c3872642737772261886308E91a8929eCB',
   },
   {
     name: 'NEAR',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0x204f57B605e83C5Efe349d49c95A724130963c32',
   },
   {
     name: 'MATIC',
-    address: '0x0000000000000000000000000000000000000000',
+    address: '0xdBC32Dc89c7AED54FBb9D2F57dA0E3e39545E00c',
   },
   {
     name: 'FTMT',
@@ -63,9 +65,9 @@ export const documentRequired = [
     name: 'package_list',
   },
 ];
-export const CONTRACT_ADDRESS = '0xf2aF67510B5a7E58800babef50c40B3115b6Ea9A';
+export const CONTRACT_ADDRESS = '0x1bfc53c97F08202446Cd759591651A1480fEFc53';
 export const SUB_GRAPH_URL =
-  'https://api.studio.thegraph.com/query/34554/b4lc-testv2/v0.1.1';
+  'https://api.studio.thegraph.com/query/34554/b4lc-testv2/v0.1.2';
 
 export enum PAYMENT_METHOD {
   VIA_BANK = 'Via bank',
@@ -128,7 +130,7 @@ export const LETTER_OF_CREDIT_STATUS = {
   DELIVERY_SENT: 'delivery_sent',
   DELIVERY_RECEIVED: 'delivery_received',
   FUND_ESCROWED: 'fund_escrowed',
-  FUND_REVERTED: 'fund_reverted',
+  FUND_REFUNDED: 'fund_refunded',
   FUND_PAID: 'fund_paid',
   ENDED: 'ended',
 };
@@ -194,8 +196,8 @@ export const LETTER_OF_CREDIT_STATUS_CONFIG = {
     color: '#8c83c7',
     hint: 'Exporter received the escrow',
   },
-  [LETTER_OF_CREDIT_STATUS.FUND_REVERTED]: {
-    title: 'Fund reverted',
+  [LETTER_OF_CREDIT_STATUS.FUND_REFUNDED]: {
+    title: 'Fund refunded',
     bgColor: '#23262F',
     color: '#FCFCFD',
     hint: 'Refunded to importer',
@@ -208,12 +210,46 @@ export const LETTER_OF_CREDIT_STATUS_CONFIG = {
   },
 };
 
-export const UPDATE_LETTER_OF_CREDIT_STATUS: string[] = [
-  'delivery_sent',
-  'delivery_received',
-  'fund_escrowed',
-  'fund_reverted',
-  'fund_paid',
+export const UPDATE_LETTER_OF_CREDIT_STATUS_VIA_BANK = [
+  {
+    title: 'Delivery sent',
+    value: 'delivery_sent',
+  },
+  {
+    title: 'Delivery received',
+    value: 'delivery_received',
+  },
+  {
+    title: 'Fund escrowed',
+    value: 'fund_escrowed',
+  },
+  {
+    title: 'Fund paid',
+    value: 'fund_paid',
+  },
+  {
+    title: 'Fund refunded',
+    value: 'fund_refunded',
+  },
+  {
+    title: 'Ended',
+    value: 'ended',
+  },
+];
+
+export const UPDATE_LETTER_OF_CREDIT_STATUS_VIA_CRYPTO = [
+  {
+    title: 'Delivery sent',
+    value: 'delivery_sent',
+  },
+  {
+    title: 'Delivery received',
+    value: 'delivery_received',
+  },
+  {
+    title: 'Ended',
+    value: 'ended',
+  },
 ];
 
 export const DOCUMENT_STATUS = {

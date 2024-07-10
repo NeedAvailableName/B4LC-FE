@@ -79,6 +79,12 @@ export const GET_CONTRACT_ACTIVITIES = gql`
       transactionHash
       blockTimestamp
     }
+    lcStatusChangeds(where: { TradeFinanceAddress: $TradeFinanceAddress }) {
+      TradeFinanceAddress
+      status
+      transactionHash
+      blockTimestamp
+    }
   }
 `;
 

@@ -48,7 +48,6 @@ function AppModal({
   const handleCancel = (e) => {
     onCancel(e);
     setTimeout(() => {
-      console.log(close);
       close?.current?.click();
     }, 100);
   };

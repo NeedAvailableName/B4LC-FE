@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -6,30 +5,29 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid,
   Typography,
+  useFormControl,
 } from '@mui/material';
-import AppSelect from '../components/AppSelect';
-import AppRadio from '../components/AppRadio';
-import AppSelectDate from '../components/AppSelectDate';
 import Checkbox from '@mui/material/Checkbox';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import AppCommodityBox from '../components/AppCommodityBox';
-import AppTextInput from '../components/AppTextInput';
-import {
-  documentRequired,
-  viaBankPaymentMethod,
-  cryptoPaymentMethod,
-  Configs,
-  tokenAddress,
-} from '../app-configs';
-import CircularProgress from '@mui/material/CircularProgress';
-import Layout from '.';
-import { useFormControl, FormControl } from '@mui/material';
-import AppAlert from '../components/AppAlert';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import Layout from '.';
+import {
+  Configs,
+  cryptoPaymentMethod,
+  documentRequired,
+  tokenAddress,
+  viaBankPaymentMethod,
+} from '../app-configs';
+import AppAlert from '../components/AppAlert';
+import AppCommodityBox from '../components/AppCommodityBox';
 import AppLoading from '../components/AppLoading';
+import AppRadio from '../components/AppRadio';
+import AppSelect from '../components/AppSelect';
+import AppSelectDate from '../components/AppSelectDate';
+import AppTextInput from '../components/AppTextInput';
 
 export default function NewSalesContract() {
   const { data, status } = useSession();
@@ -243,7 +241,6 @@ export default function NewSalesContract() {
           },
         },
       );
-      console.log(response.data);
       if (response.data) {
         setSuccess(response.data.message);
         router.push(`/sales-contracts/${response.data.salescontract_id}`);

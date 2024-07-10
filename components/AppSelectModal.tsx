@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import AppButton from './AppButton';
 import AppModal from './AppModal';
+import AppRadio from './AppRadio';
+import {
+  FormControl,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+} from '@mui/material';
 
 export default function AppSelectModal({
   options = [],
@@ -23,10 +30,10 @@ export default function AppSelectModal({
   children,
   ...props
 }) {
-  const [selectedOption, setSelectedOption] = useState(null);
+  const [selectedOption, setSelectedOption] = useState('');
 
-  const handleOptionChange = (option) => {
-    setSelectedOption(option);
+  const handleOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSelectedOption((event.target as HTMLInputElement).value);
   };
 
   const handleConfirm = () => {
@@ -52,21 +59,20 @@ export default function AppSelectModal({
         <AppButton
           isLoading={isLoading}
           additionalStyle={{
-            backgroundColor: '#D92D20',
+            backgroundColor: '#005aab',
+            color: '#FFFFFF',
             ...submitBtnStyle,
           }}
           disabled={disableConfirmBtn || !selectedOption}
           title={confirmText}
-          onClick={handleConfirm}
         />
       }
       onConfirm={handleConfirm}
       cancelBtn={
         <AppButton
           additionalStyle={{
-            backgroundColor: '#F0F2FA',
-            color: '#616879',
-            border: '1px solid #e9e9e9',
+            backgroundColor: '#D92D20',
+            color: '#FFFFFF',
             ...cancelBtnStyle,
           }}
           title={cancelText}
@@ -78,15 +84,31 @@ export default function AppSelectModal({
         <div className="font-semibold text-[15px] mb-[2px]">{title}</div>
       )}
       <div className="mb-4">
-        {options.map((option, index) => (
+        {/* {options.map((option, index) => (
           <div
             key={index}
             className={`p-2 cursor-pointer border rounded mb-2 ${selectedOption === option ? 'bg-blue-200' : 'bg-white'}`}
             onClick={() => handleOptionChange(option)}
           >
-            {option}
+            {option.title}
           </div>
-        ))}
+        ))} */}
+        <FormControl>
+          <RadioGroup
+            aria-labelledby="demo-controlled-radio-buttons-group"
+            name="controlled-radio-buttons-group"
+            value={selectedOption}
+            onChange={handleOptionChange}
+          >
+            {options.map((option, index) => (
+              <FormControlLabel
+                value={option.value}
+                control={<Radio />}
+                label={option.title}
+              />
+            ))}
+          </RadioGroup>
+        </FormControl>
       </div>
       {children}
     </AppModal>

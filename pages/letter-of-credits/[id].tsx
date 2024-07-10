@@ -9,7 +9,8 @@ import {
   PAYMENT_METHOD,
   SALES_CONTRACT_STATUS,
   SALES_CONTRACT_STATUS_CONFIG,
-  UPDATE_LETTER_OF_CREDIT_STATUS,
+  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_BANK,
+  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_CRYPTO,
 } from '../../app-configs';
 import { useRouter } from 'next/router';
 import { useEffect, useRef, useState } from 'react';
@@ -187,35 +188,38 @@ export default function LetterOfCreditDetail() {
     }
   };
 
-  // const updateLCStatus = async () => {
-  //   try {
-  //     setLoading(true);
-  //     const contract = await getContract();
-  //     const tx = await contract.changeLcStatus(curLC?.letterOfCredit?.LcAddress, newStatus);
-  //     await tx.wait();
-  //     if(tx) {
-  //       const response = await axios.patch(
-  //         `${Configs.BASE_API}/letterofcredits/${id}/status`,
-  //         { status: newStatus },
-  //         {
-  //           headers: {
-  //             'Content-Type': 'application/json',
-  //             Authorization: `Bearer ${data?.address}`,
-  //           },
-  //         },
-  //       );
-  //       if (response) {
-  //         setLoading(false);
-  //         setSuccess(response.data.message);
-  //         getLcDetail();
-  //       }
-  //     }
-  //   }
-  //   catch(err) {
-  //     setError(err.message);
-  //     console.log(err);
-  //   }
-  // }
+  const updateLcStatus = async (status: string) => {
+    try {
+      setLoading(true);
+      const contract = await getContract();
+      const tx = await contract.changeLcStatus(
+        curLC?.letterOfCredit?.LcAddress,
+        status,
+      );
+      await tx.wait();
+      if (tx) {
+        const response = await axios.patch(
+          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+          { status: status },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${data?.address}`,
+            },
+          },
+        );
+        if (response) {
+          setLoading(false);
+          setSuccess(response.data.message);
+          getLcDetail();
+        }
+      }
+    } catch (err) {
+      setLoading(false);
+      setError(err.message);
+      console.log(err);
+    }
+  };
 
   const approveLC = async () => {
     try {
@@ -239,6 +243,7 @@ export default function LetterOfCreditDetail() {
         if (response.data) {
           setLoading(false);
           setSuccess(response.data.message);
+          getLcDetail();
         }
       } else {
         setLoading(false);
@@ -272,44 +277,11 @@ export default function LetterOfCreditDetail() {
         if (response.data) {
           setLoading(false);
           setSuccess(response.data.message);
+          getLcDetail();
         }
       } else {
         setLoading(false);
       }
-    } catch (err) {
-      setLoading(false);
-      setError(err.message);
-      console.log(err);
-    }
-  };
-
-  const updateLcStatus = async (status) => {
-    try {
-      setLoading(true);
-      // const contract = await getContract();
-      // const tx = await contract.changeLcStatus(
-      //   curLC?.letterOfCredit?.LcAddress,
-      //   status,
-      // );
-      // await tx.wait();
-      // if (tx) {
-      //   const response = await axios.patch(
-      //     `${Configs.BASE_API}/letterofcredits/${id}/status`,
-      //     { status: status },
-      //     {
-      //       headers: {
-      //         'Content-Type': 'application/json',
-      //         Authorization: `Bearer ${data?.address}`,
-      //       },
-      //     },
-      //   );
-      //   if (response.data) {
-      //     setLoading(false);
-      //     setSuccess(response.data.message);
-      //   }
-      // } else {
-      //   setLoading(false);
-      // }
     } catch (err) {
       setLoading(false);
       setError(err.message);
@@ -331,7 +303,6 @@ export default function LetterOfCreditDetail() {
       );
       if (response.data) {
         setLoading(false);
-        console.log('res: ', response.data);
         setcurLC(response.data);
       }
     } catch (err) {
@@ -392,7 +363,9 @@ export default function LetterOfCreditDetail() {
                       title="View L/C stored on blockchain"
                       placement="right"
                     >
-                      <div>View Contract</div>
+                      <Button className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5">
+                        View contract
+                      </Button>
                     </Tooltip>
                   </Link>
                 </div>
@@ -907,7 +880,12 @@ export default function LetterOfCreditDetail() {
             {(data?.address == curLC?.salesContract?.advisingBankAddress ||
               data?.address == curLC?.salesContract?.issuingBankAddress) && (
               <AppSelectModal
-                options={UPDATE_LETTER_OF_CREDIT_STATUS}
+                width={243}
+                options={
+                  curLC?.salesContract?.paymentMethod === PAYMENT_METHOD.CRYPTO
+                    ? UPDATE_LETTER_OF_CREDIT_STATUS_VIA_CRYPTO
+                    : UPDATE_LETTER_OF_CREDIT_STATUS_VIA_BANK
+                }
                 onConfirm={(status) => updateLcStatus(status)}
                 confirmText="Confirm"
                 cancelText="Cancel"
@@ -916,7 +894,7 @@ export default function LetterOfCreditDetail() {
                     Update Status
                   </Button>
                 }
-                // closeRef={closeRef}
+                closeRef={closeRef}
                 title="Choose one status: "
               ></AppSelectModal>
             )}

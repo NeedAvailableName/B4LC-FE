@@ -1,4 +1,3 @@
-import React, { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -6,31 +5,28 @@ import {
   Divider,
   FormControlLabel,
   FormGroup,
-  Grid,
   Typography,
 } from '@mui/material';
-import AppSelect from '../components/AppSelect';
-import AppRadio from '../components/AppRadio';
-import AppSelectDate from '../components/AppSelectDate';
-import AppCheckBox from '../components/AppCheckBox';
-import AppButton from '../components/AppButton';
 import Checkbox from '@mui/material/Checkbox';
+import CircularProgress from '@mui/material/CircularProgress';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import AppCommodityBox from '../components/AppCommodityBox';
-import AppTextInput from '../components/AppTextInput';
-import {
-  documentRequired,
-  viaBankPaymentMethod,
-  cryptoPaymentMethod,
-  Configs,
-  tokenAddress,
-} from '../app-configs';
-import CircularProgress from '@mui/material/CircularProgress';
-import Layout from '.';
 import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import Layout from '.';
+import {
+  Configs,
+  cryptoPaymentMethod,
+  documentRequired,
+  tokenAddress,
+  viaBankPaymentMethod,
+} from '../app-configs';
 import AppAlert from '../components/AppAlert';
-import { ISalesContract } from '../types';
+import AppCommodityBox from '../components/AppCommodityBox';
+import AppRadio from '../components/AppRadio';
+import AppSelect from '../components/AppSelect';
+import AppSelectDate from '../components/AppSelectDate';
+import AppTextInput from '../components/AppTextInput';
 
 export default function UpdateSalesContract() {
   const { data, status } = useSession();
@@ -146,7 +142,6 @@ export default function UpdateSalesContract() {
   };
 
   const handleCommodityChange = (item) => {
-    console.log('items: ', item);
     const commodity = item.map(({ id, ...rest }) => rest);
     setFormData((prevState) => ({
       ...prevState,
@@ -212,7 +207,6 @@ export default function UpdateSalesContract() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log('form data: ', formData);
       const token = tokenAddress.find(
         (token) => token.name === formData?.currency,
       );
@@ -229,7 +223,6 @@ export default function UpdateSalesContract() {
           },
         },
       );
-      console.log(response.data);
       if (response.data) {
         setSuccess(response.data.message);
         window.location.href = '/sales-contracts';
@@ -243,14 +236,14 @@ export default function UpdateSalesContract() {
   return (
     <Layout>
       {loading ? (
-        <div className="bg-slate-50 m-5 h-dvh flex items-center justify-center rounded-2xl">
+        <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
           <CircularProgress />
         </div>
       ) : (
         <>
           {error && <AppAlert severity="error" message={error} />}
           {success && <AppAlert severity="success" message={success} />}
-          <div className="bg-slate-50 m-5 rounded-2xl flex justify-center">
+          <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
             <form onSubmit={handleSubmit}>
               <Container className="columns-2 gap-10">
                 {/* Importer */}

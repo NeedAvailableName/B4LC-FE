@@ -17,14 +17,10 @@ import AppTablePagination from '../components/AppTablePagination';
 
 export default function LcList() {
   const { data, status } = useSession();
-  console.log('status: ', status);
   const [LcList, setLcList] = React.useState([]);
   const [error, setError] = React.useState(null);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - LcList.length) : 0;
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -53,7 +49,6 @@ export default function LcList() {
         },
       });
       if (response.data) {
-        console.log('data: ', response.data);
         setLcList(response.data);
       }
     } catch (err) {

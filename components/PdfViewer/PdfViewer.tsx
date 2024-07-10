@@ -1,14 +1,16 @@
+import { CircularProgress, Tooltip } from '@mui/material';
 import { Viewer, Worker } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
 import { getFilePlugin } from '@react-pdf-viewer/get-file';
 import { pageNavigationPlugin } from '@react-pdf-viewer/page-navigation';
-import { memo } from 'react';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import { Tooltip } from '@mui/material';
 import { zoomPlugin } from '@react-pdf-viewer/zoom';
-import { AiFillCaretDown } from 'react-icons/ai';
-import { AiFillCaretUp } from 'react-icons/ai';
+import classNames from 'classnames/bind';
+import { memo } from 'react';
+import { AiFillCaretDown, AiFillCaretUp } from 'react-icons/ai';
 import { FaDownload } from 'react-icons/fa';
-import AppLoading from './AppLoading';
+import AppLoading from '../AppLoading';
+import styles from './PdfViewer.module.sass';
+const cx = classNames.bind(styles);
 
 const pageLayout = {
   transformSize: ({ size }) => ({
@@ -27,20 +29,6 @@ function PdfViewer({
   hasDownloadBtn = true,
   defaultScale,
 }) {
-  //   const getFilePluginInstance = getFilePlugin({
-  //     fileNameGenerator: (file) => {
-  //       console.log('🚀 ~ getFilePluginInstance ~ file:', file);
-  //       // `file.name` is the URL of opened file
-  //       const customFileName =
-  //         fileName ||
-  //         file.name
-  //           .substring(file.name.lastIndexOf('/') + 1)
-  //           ?.split('?')
-  //           ?.substring(0, 1);
-  //       console.log('🚀 ~ PdfViewer_getFilePluginInstance ~ customFileName:', customFileName);
-  //       return customFileName;
-  //     },
-  //   });
   const zoomPluginInstance = zoomPlugin();
 
   const { Zoom } = zoomPluginInstance;
@@ -55,7 +43,7 @@ function PdfViewer({
     return new RegExp('^(http|https)://').test(url) ? url : null;
   };
   return (
-    <div className="" style={wrapperStyle}>
+    <div className={cx('pdf-viewer')} style={wrapperStyle}>
       <Worker workerUrl="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js">
         <div
           style={{
@@ -63,9 +51,9 @@ function PdfViewer({
             height: '100%',
           }}
         >
-          <div className="w-full h-full overflow-hidden">
-            <div className="flex items-center justify-between bg-[#e1e4f3] border-b border-b-[rgba(0,0,0,0.1)] p-1 absolute left-0 right-0 top-[-1px] z-[999] opacity-0 wrapper hover:opacity-100">
-              <div className="">
+          <div className={cx('pdf-tool__wrapper')}>
+            <div className={cx('pdf-tool')}>
+              <div className={cx('left')}>
                 <GoToFirstPage>
                   {(props) => (
                     <Tooltip title="Trang đầu">
@@ -87,7 +75,7 @@ function PdfViewer({
                   )}
                 </GoToLastPage>
               </div>
-              <div className="">
+              <div className={cx('center')}>
                 <CurrentPageLabel>
                   {(props) => (
                     <span
@@ -95,21 +83,20 @@ function PdfViewer({
                         fontWeight: '500',
                       }}
                     >
-                      {`Trang ${props.currentPage + 1} / ${props.numberOfPages}`}
+                      {`Page ${props.currentPage + 1} / ${props.numberOfPages}`}
                     </span>
                   )}
                 </CurrentPageLabel>
               </div>
               <Zoom levels={[0.4, 0.8, 1.2, 1.6, 2.4, 3.2]} />
               {hasDownloadBtn ? (
-                <div className="">
+                <div className={cx('right')}>
                   {!isDownloadFileHasName ? (
                     <DownloadButton />
                   ) : (
-                    <Tooltip title="Tải xuống">
+                    <Tooltip title="Download">
                       <a
-                        className=""
-                        // download={fileName}
+                        className={cx('pdf-icon-download')}
                         href={urlDownLoad}
                         rel="noreferrer"
                         target="_blank"
@@ -120,9 +107,9 @@ function PdfViewer({
                   )}
                 </div>
               ) : (
-                <Tooltip title="Không thể tải xuống">
+                <Tooltip title="Cannot download">
                   <a
-                    className="flex justify-center items-center p-1.5 rounded hover:bg-[#d3d3d3]"
+                    className={cx('pdf-icon-download')}
                     rel="noreferrer"
                     target="_blank"
                   >
@@ -138,7 +125,7 @@ function PdfViewer({
               fileUrl={checkUrlIsHttps()}
               pageLayout={pageLayout}
               defaultScale={defaultScale || 1.2}
-              renderLoader={() => <AppLoading />}
+              renderLoader={() => <CircularProgress />}
               plugins={[
                 getFilePluginInstance,
                 pageNavigationPluginInstance,

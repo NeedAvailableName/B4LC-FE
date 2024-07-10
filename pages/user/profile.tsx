@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
 import {
   Avatar,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -13,17 +13,15 @@ import {
   TableContainer,
   TableRow,
   TextField,
-  IconButton,
-  Button,
   Typography,
 } from '@mui/material';
-import Layout from '../../layout';
-import axios from 'axios';
-import { Configs } from '../../app-configs';
-import { useSession } from 'next-auth/react';
 import { red } from '@mui/material/colors';
-import AppButton from '../../components/AppButton';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { Configs } from '../../app-configs';
 import AppAlert from '../../components/AppAlert';
+import Layout from '../../layout';
 
 export default function UserProfile() {
   const { data } = useSession();

@@ -1,10 +1,10 @@
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { GetServerSideProps, NextPage } from 'next';
-import { useEffect, useState } from 'react';
 import { getServerSession } from 'next-auth';
-import { getAuthOptions } from './api/auth/[...nextauth]';
 import { useSession } from 'next-auth/react';
-import { useAccount } from 'wagmi';
+import { useEffect } from 'react';
+import { UserRole } from '../app-configs';
+import { getAuthOptions } from './api/auth/[...nextauth]';
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   return {
@@ -15,17 +15,17 @@ export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 };
 
 const Home: NextPage = () => {
-  const [open, setOpen] = useState(true);
-  const toggleDrawer = () => {
-    setOpen(!open);
-  };
   const { data: session, status } = useSession();
-  const { isConnected } = useAccount();
   useEffect(() => {
-    if (status === 'authenticated' && session.user.name) {
-      window.location.href = '/sales-contracts';
-    } else if (status === 'authenticated' && !session.user.name) {
-      window.location.href = '/user/profile';
+    if (status === 'authenticated') {
+      if (session.user.role === UserRole.ADMIN) {
+        window.location.href = '/admin';
+      }
+      if (session.user.name && session.user.role !== UserRole.ADMIN) {
+        window.location.href = '/sales-contracts';
+      } else if (!session.user.name && session.user.role !== UserRole.ADMIN) {
+        window.location.href = '/user/profile';
+      }
     }
   }, [status]);
   return (

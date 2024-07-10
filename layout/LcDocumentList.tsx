@@ -1,14 +1,17 @@
-import * as React from 'react';
+import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { useSession } from 'next-auth/react';
 import axios from 'axios';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import * as React from 'react';
+import { FaEye } from 'react-icons/fa';
+import { GrDocumentUpload } from 'react-icons/gr';
 import {
   Configs,
   LETTER_OF_CREDIT_STATUS,
@@ -16,11 +19,8 @@ import {
   UserRole,
 } from '../app-configs';
 import AppAlert from '../components/AppAlert';
-import { GrDocumentUpload } from 'react-icons/gr';
-import { FaEye } from 'react-icons/fa';
-import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
-import NoDataTable from '../components/NoDataTable';
 import AppTablePagination from '../components/AppTablePagination';
+import NoDataTable from '../components/NoDataTable';
 
 export default function LcDocumentList() {
   const { data, status } = useSession();
@@ -62,13 +62,10 @@ export default function LcDocumentList() {
         },
       });
       if (response.data) {
-        console.log('data: ', response.data);
         setLcList(response.data);
       }
     } catch (err) {
-      console.log(err);
       setError(err.message);
-      // alert(err.message);
     }
   };
   React.useEffect(() => {
@@ -175,7 +172,9 @@ export default function LcDocumentList() {
                       className="cursor-pointer"
                       onClick={() => handleViewOnClick(LC)}
                     >
-                      <FaEye />
+                      <Tooltip title="View detail">
+                        <FaEye />
+                      </Tooltip>
                     </TableCell>
                     {(data?.user.role != UserRole.BANK ||
                       LC.status != LETTER_OF_CREDIT_STATUS.DOCUMENT_APPROVED ||
@@ -185,7 +184,9 @@ export default function LcDocumentList() {
                         className="cursor-pointer"
                         onClick={() => handleUploadOnClick(LC)}
                       >
-                        <GrDocumentUpload />
+                        <Tooltip title="Upload document">
+                          <GrDocumentUpload />
+                        </Tooltip>
                       </TableCell>
                     )}
                   </StyledTableRow>

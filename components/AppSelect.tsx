@@ -9,6 +9,7 @@ interface AppSelectProps {
   label?: string;
   elements?: string[];
   disabled?: boolean;
+  defaultValue?: string;
   onChange: (value: string) => void;
   [key: string]: any;
 }
@@ -17,6 +18,7 @@ export default function AppSelect({
   label = '',
   elements = [],
   disabled = false,
+  defaultValue = '',
   ...props
 }: AppSelectProps) {
   const [option, setOption] = React.useState('');
@@ -33,6 +35,7 @@ export default function AppSelect({
           {label}
         </InputLabel>
         <Select
+          defaultValue={defaultValue}
           required={true}
           labelId="demo-simple-select-label"
           id="demo-simple-select"

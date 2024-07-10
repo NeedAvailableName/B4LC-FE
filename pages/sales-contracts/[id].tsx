@@ -58,6 +58,7 @@ export default function SalesContractDetail() {
           },
         ],
         price: curSalesContract?.price ?? '',
+        currency: curSalesContract?.currency ?? '',
         paymentMethod: curSalesContract?.paymentMethod ?? '',
         additionalInfo: curSalesContract?.additionalInfo ?? '',
         deadline: parseInt(curSalesContract?.deadline) ?? 0,
@@ -98,7 +99,7 @@ export default function SalesContractDetail() {
           fetchPolicy: 'network-only',
         })
           .then(async ({ data }) => {
-            address = data.createLetterOfCredits[0].TradeFinanceAddress;
+            address = data?.createLetterOfCredits[0]?.TradeFinanceAddress;
             if (address) {
               const response = await axios.post(
                 `${Configs.BASE_API}/letterofcredits/create`,

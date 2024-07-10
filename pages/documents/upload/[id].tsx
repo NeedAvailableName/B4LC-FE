@@ -1,9 +1,3 @@
-import axios from 'axios';
-import Layout from '../../../layout';
-import { useSession } from 'next-auth/react';
-import { Configs, DEFAULT_DOCUMENT_FORM_DATA } from '../../../app-configs';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
 import {
   Button,
   CircularProgress,
@@ -15,14 +9,21 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import AppAlert from '../../../components/AppAlert';
-import PdfViewer from '../../../components/PdfViewer';
-import AppFileInput from '../../../components/AppFileInput';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import AppSelect from '../../../components/AppSelect';
+import { Configs } from '../../../app-configs';
 import { IcEyePreview } from '../../../assets/svgs';
-import { LoadingButton } from '@mui/lab';
-import AppLoading from '../../../components/AppLoading';
+import AppAlert from '../../../components/AppAlert';
+import AppFileInput from '../../../components/AppFileInput';
+import AppSelect from '../../../components/AppSelect';
+import PdfViewer from '../../../components/PdfViewer/index';
+import Layout from '../../../layout';
+import classNames from 'classnames/bind';
+import styles from './[id].module.sass';
+const cx = classNames.bind(styles);
 
 export default function UploadDocument() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function UploadDocument() {
   const [loading, setLoading] = useState(false);
   const [fileLoading, setFileLoading] = useState(false);
   const [OCRLoading, setOCRLoading] = useState(false);
-  const [filePath, setFilePath] = useState(null);
+  const [filePath, setFilePath] = useState();
   const [docType, setDocType] = useState<string>();
   const [OCRformData, setOCRformData] = useState<Object>();
   const [curLC, setCurLC] = useState();
@@ -59,7 +60,6 @@ export default function UploadDocument() {
         },
       );
       if (response.data) {
-        console.log(response.data);
         setLoading(false);
         setCurLC(response.data);
         const trueKeys = Object.keys(
@@ -85,7 +85,6 @@ export default function UploadDocument() {
       const modifiedFile = new File([file], file.name);
       _documentDataForm.append('file', modifiedFile);
     });
-    console.log(_documentDataForm);
     try {
       const response = await axios.post(
         `${Configs.BASE_API}/files/upload`,
@@ -93,7 +92,6 @@ export default function UploadDocument() {
       );
       if (response.data) {
         setFileLoading(false);
-        console.log('file path: ', response.data);
         setFilePath(response.data);
         return response.data;
       }
@@ -109,7 +107,6 @@ export default function UploadDocument() {
       doc_type: docType,
       image_url: await uploadToCloud(uploadedFiles),
     };
-    console.log(OCRformData);
     try {
       const response = await axios.post(
         `${Configs.OCR_API}/ocr_document`,
@@ -117,7 +114,6 @@ export default function UploadDocument() {
       );
       if (response.data) {
         setOCRLoading(false);
-        console.log(response.data);
         setOCRformData(response.data.results);
       } else {
         setOCRLoading(false);
@@ -143,7 +139,6 @@ export default function UploadDocument() {
         ...OCRformData,
       };
       let doc = '';
-      console.log('form data: ', formData);
       switch (docType) {
         case 'invoice':
           doc = 'invoices';
@@ -177,7 +172,6 @@ export default function UploadDocument() {
           },
         },
       );
-      console.log(response.data);
       if (response.data) {
         setSuccess(response.data.message);
         router.push('/documents');
@@ -199,7 +193,7 @@ export default function UploadDocument() {
     <Layout>
       {loading ? (
         <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
-          <AppLoading />
+          <CircularProgress />
         </div>
       ) : (
         <>
@@ -207,7 +201,6 @@ export default function UploadDocument() {
           {success && <AppAlert severity="success" message={success} />}
           <FormProvider {...methods}>
             <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
-              {/* <form onSubmit={handleSubmit} className="w-full"> */}
               <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
                 <Grid item xs={12} className="m-3">
                   <AppFileInput
@@ -220,14 +213,21 @@ export default function UploadDocument() {
                     }
                   ></AppFileInput>
                 </Grid>
-                <Grid item xs={12} className="">
-                  <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center bg-white">
-                    {fileLoading && <AppLoading></AppLoading>}
+                <Grid item xs={12} className={cx('col-file-incoming-docs')}>
+                  <div>
+                    {fileLoading && (
+                      <div className="h-dvh justify-center items-center flex flex-col">
+                        <CircularProgress />
+                        <Typography className="pt-2">Uploading...</Typography>
+                      </div>
+                    )}
                     {filePath && (
-                      <PdfViewer url={filePath} defaultScale="PageWidth" />
+                      <div className={cx('preview-file')}>
+                        <PdfViewer url={filePath} defaultScale="PageWidth" />
+                      </div>
                     )}
                     {!filePath && !fileLoading && (
-                      <div className="flex justify-center items-center flex-col">
+                      <div className="flex justify-center items-center flex-col rounded-[10px] shadow-custom h-dvh bg-gray content-center bg-white">
                         <p className="">
                           <IcEyePreview />
                         </p>
@@ -247,7 +247,12 @@ export default function UploadDocument() {
                 </Grid>
                 <Grid item xs={12}>
                   {OCRLoading ? (
-                    <AppLoading />
+                    <div className="h-dvh justify-center flex items-center flex-col">
+                      <CircularProgress />
+                      <Typography className="pt-2">
+                        OCR extracting...
+                      </Typography>
+                    </div>
                   ) : (
                     <Table
                       sx={{ width: '60', whiteSpace: 'nowrap' }}
@@ -265,19 +270,23 @@ export default function UploadDocument() {
                                 },
                               }}
                             >
-                              <TableCell component="th" scope="row">
+                              <TableCell
+                                component="th"
+                                scope="row"
+                                className="p-0"
+                              >
                                 {key}
                               </TableCell>
                               <TableCell component="th" scope="row">
                                 {isEdit ? (
-                                  <TextField
-                                    className="w-full"
+                                  <input
+                                    type="text"
+                                    className="w-full bg-white border"
                                     value={value}
                                     onChange={(e) =>
                                       handleChange(key, e.target.value)
                                     }
-                                    size="small"
-                                  />
+                                  ></input>
                                 ) : (
                                   value
                                 )}
@@ -289,7 +298,6 @@ export default function UploadDocument() {
                   )}
                 </Grid>
               </Grid>
-              {/* </form> */}
             </div>
             <div className="m-5 rounded-2xl justify-center flex">
               {(data?.address == curLC?.salesContract?.exporterAddress ||
