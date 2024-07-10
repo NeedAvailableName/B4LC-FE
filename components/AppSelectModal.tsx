@@ -102,6 +102,7 @@ export default function AppSelectModal({
           >
             {options.map((option, index) => (
               <FormControlLabel
+                key={index}
                 value={option.value}
                 control={<Radio />}
                 label={option.title}
