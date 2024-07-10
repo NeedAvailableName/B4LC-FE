@@ -38,42 +38,11 @@ function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
     <>
       <Head>
-        <html lang="en" translate="no"></html>
-        <meta charSet="utf-8" />
-        <link
-          rel="icon"
-          href="/src/assets/svgs/Infinity.svg"
-          data-react-helmet="true"
-        />
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
-        <meta name="theme-color" content="#000000" />
-        <meta
-          name="description"
-          content="Blockchain-based system for publishing and managing L/C"
-        />
-        <meta
-          property="og:title"
-          content="B4LC | Blockchain based L/C managing system"
-        />
-        <meta
-          property="og:description"
-          content="Blockchain-based system for publishing and managing L/C"
-          data-rh="true"
-        />
-        <meta property="og:image" content="" />
-        <meta property="og:url" content="" />
-        <meta property="og:type" content="website" data-rh="true" />
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="true"
-        />
-        <title>B4LC | Blockchain based L/C managing system</title>
+        <title>B4LC | Blockchain-based L/C managing system</title>
       </Head>
       <WagmiProvider config={config}>
         <SessionProvider refetchInterval={0} session={pageProps.session}>
