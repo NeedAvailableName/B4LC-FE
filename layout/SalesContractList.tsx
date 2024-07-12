@@ -14,6 +14,7 @@ import { Configs, SALES_CONTRACT_STATUS_CONFIG } from '../app-configs';
 import AppAlert from '../components/AppAlert';
 import AppTablePagination from '../components/AppTablePagination';
 import NoDataTable from '../components/NoDataTable';
+import api from '../utils/api';
 
 export default function SalesContractsList() {
   const { data, status } = useSession();
@@ -46,9 +47,26 @@ export default function SalesContractsList() {
   const handleOnClick = (contract) => {
     router.push(`/sales-contracts/${contract.salescontract_id}`);
   };
+  // const getSalesContractsList = async () => {
+  //   try {
+  //     const response = await axios.get(`${Configs.BASE_API}/salescontracts`, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //         Authorization: `Bearer ${data?.address}`,
+  //       },
+  //     });
+  //     if (response.data) {
+  //       setSalesContractsList(response.data);
+  //     }
+  //   } catch (err) {
+  //     console.log(err);
+  //     setError(err.message);
+  //   }
+  // };
+
   const getSalesContractsList = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/salescontracts`, {
+      const response = await api.get('/salescontracts', {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,

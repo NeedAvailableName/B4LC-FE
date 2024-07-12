@@ -44,10 +44,6 @@ class MyDocument extends Document {
           <meta property="og:image" content="" />
           <meta property="og:url" content="" />
           <meta property="og:type" content="website" data-rh="true" />
-          <meta
-            http-equiv="Content-Security-Policy"
-            content="upgrade-insecure-requests"
-          />
           <link rel="manifest" href="/manifest.json" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
           <link
