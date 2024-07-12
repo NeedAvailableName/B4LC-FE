@@ -1,25 +1,22 @@
-import * as React from 'react';
+import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Title from './Title';
-import { useSession, getSession } from 'next-auth/react';
 import axios from 'axios';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
-import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
+import * as React from 'react';
 import { Configs, SALES_CONTRACT_STATUS_CONFIG } from '../app-configs';
 import AppAlert from '../components/AppAlert';
-import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
-import NoDataTable from '../components/NoDataTable';
 import AppTablePagination from '../components/AppTablePagination';
+import NoDataTable from '../components/NoDataTable';
 
 export default function SalesContractsList() {
   const { data, status } = useSession();
-  console.log('data: ', data?.address);
   const [salesContractsList, setSalesContractsList] = React.useState([]);
   const [error, setError] = React.useState(null);
   const router = useRouter();
@@ -58,7 +55,6 @@ export default function SalesContractsList() {
         },
       });
       if (response.data) {
-        console.log('data: ', response.data);
         setSalesContractsList(response.data);
       }
     } catch (err) {

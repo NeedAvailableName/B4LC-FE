@@ -1,7 +1,14 @@
-import '../styles/globals.css';
+import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import {
+  GetSiweMessageOptions,
+  RainbowKitSiweNextAuthProvider,
+} from '@rainbow-me/rainbowkit-siwe-next-auth';
 import '@rainbow-me/rainbowkit/styles.css';
-import type { AppProps } from 'next/app';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import type { Session } from 'next-auth';
+import { SessionProvider } from 'next-auth/react';
+import type { AppProps } from 'next/app';
+import Head from 'next/head';
 import { WagmiProvider } from 'wagmi';
 import {
   arbitrum,
@@ -12,13 +19,8 @@ import {
   sepolia,
   zora,
 } from 'wagmi/chains';
-import { getDefaultConfig, RainbowKitProvider } from '@rainbow-me/rainbowkit';
-import {
-  RainbowKitSiweNextAuthProvider,
-  GetSiweMessageOptions,
-} from '@rainbow-me/rainbowkit-siwe-next-auth';
-import { SessionProvider } from 'next-auth/react';
-import type { Session } from 'next-auth';
+import '../styles/globals.css';
+
 const config = getDefaultConfig({
   appName: 'RainbowKit App',
   projectId: 'YOUR_PROJECT_ID',
@@ -34,19 +36,28 @@ const getSiweMessageOptions: GetSiweMessageOptions = () => ({
 
 function MyApp({ Component, pageProps }: AppProps<{ session: Session }>) {
   return (
-    <WagmiProvider config={config}>
-      <SessionProvider refetchInterval={0} session={pageProps.session}>
-        <QueryClientProvider client={client}>
-          <RainbowKitSiweNextAuthProvider
-            getSiweMessageOptions={getSiweMessageOptions}
-          >
-            <RainbowKitProvider coolMode>
-              <Component {...pageProps} />
-            </RainbowKitProvider>
-          </RainbowKitSiweNextAuthProvider>
-        </QueryClientProvider>
-      </SessionProvider>
-    </WagmiProvider>
+    <>
+      <Head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+        />
+        <title>B4LC | Blockchain-based L/C managing system</title>
+      </Head>
+      <WagmiProvider config={config}>
+        <SessionProvider refetchInterval={0} session={pageProps.session}>
+          <QueryClientProvider client={client}>
+            <RainbowKitSiweNextAuthProvider
+              getSiweMessageOptions={getSiweMessageOptions}
+            >
+              <RainbowKitProvider coolMode>
+                <Component {...pageProps} />
+              </RainbowKitProvider>
+            </RainbowKitSiweNextAuthProvider>
+          </QueryClientProvider>
+        </SessionProvider>
+      </WagmiProvider>
+    </>
   );
 }
 

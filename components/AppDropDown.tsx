@@ -1,19 +1,16 @@
-import * as React from 'react';
+import { Avatar } from '@mui/material';
 import Button from '@mui/material/Button';
+import { red } from '@mui/material/colors';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
-import { useAccount } from 'wagmi';
-import { useDisconnect } from 'wagmi';
-import { signOut } from 'next-auth/react';
-import { useSession } from 'next-auth/react';
-import { Configs } from '../app-configs';
+import { signOut, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { Avatar } from '@mui/material';
-import { red } from '@mui/material/colors';
+import * as React from 'react';
+import { useDisconnect } from 'wagmi';
+import { Configs } from '../app-configs';
 
 export default function AppDropDown() {
   const { data, status } = useSession();
-  console.log('data', data);
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -23,7 +20,6 @@ export default function AppDropDown() {
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const account = useAccount();
   const { disconnect } = useDisconnect();
   return (
     <div>
@@ -33,7 +29,7 @@ export default function AppDropDown() {
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
-        className="text-xl font-semibold text-primary"
+        className="text-xl font-semibold text-primary p-0"
       >
         <Avatar sx={{ bgcolor: red[500] }} aria-label="recipe">
           {data?.address?.slice(2, 4)}

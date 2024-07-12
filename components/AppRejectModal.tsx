@@ -49,7 +49,8 @@ export default function AppRejectModal({
         <AppButton
           isLoading={isLoading}
           additionalStyle={{
-            backgroundColor: '#D92D20',
+            backgroundColor: '#005aab',
+            color: '#FFFFFF',
             ...submitBtnStyle,
           }}
           disabled={disableConfirmBtn}
@@ -60,9 +61,8 @@ export default function AppRejectModal({
       cancelBtn={
         <AppButton
           additionalStyle={{
-            backgroundColor: '#F0F2FA',
-            color: '#616879',
-            border: '1px solid #e9e9e9',
+            backgroundColor: '#D92D20',
+            color: '#FFFFFF',
             ...cancelBtnStyle,
           }}
           title={cancelText}

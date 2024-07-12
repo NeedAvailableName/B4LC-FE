@@ -1,24 +1,7 @@
-import axios from 'axios';
-import Layout from '../../layout';
-import { useSession } from 'next-auth/react';
 import {
-  BLOCKCHAIN_SCAN_URL,
-  Configs,
-  IPFS_URL,
-  LETTER_OF_CREDIT_STATUS,
-  SALES_CONTRACT_STATUS,
-} from '../../app-configs';
-import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
-import {
-  Box,
-  Button,
   Checkbox,
   CircularProgress,
-  Container,
-  Divider,
   FormControlLabel,
-  FormGroup,
   Grid,
   Paper,
   Table,
@@ -27,22 +10,34 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import AppAlert from '../../components/AppAlert';
+import { ethers } from 'ethers';
+import { useSession } from 'next-auth/react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import {
+  BLOCKCHAIN_SCAN_URL,
+  IPFS_URL,
+  LETTER_OF_CREDIT_STATUS_CONFIG,
+} from '../../app-configs';
 import ApolloClient from '../../clients/apollo';
+import AppAlert from '../../components/AppAlert';
+import Layout from '../../layout';
 import {
   GET_CONTRACT_ACTIVITIES,
   GET_CONTRACT_DETAIL,
   GET_CONTRACT_PAYMENT,
+  GET_LC_STATUS_CHANGED,
 } from '../../queries';
-import Link from 'next/link';
-import { ethers } from 'ethers';
 
 export default function ContractDetail() {
   const router = useRouter();
   const { id } = router.query;
   const [curLC, setcurLC] = useState();
+  const [LcStatus, setLcStatus] = useState('');
   const [LcActivities, setLcActivities] = useState();
   const [LcPayment, setLcPayment] = useState();
   const [error, setError] = useState(null);
@@ -60,7 +55,6 @@ export default function ContractDetail() {
       fetchPolicy: 'network-only',
     })
       .then(({ data }) => {
-        console.log('contract data: ', data);
         setcurLC(data);
         setLoading(false);
       })
@@ -80,7 +74,6 @@ export default function ContractDetail() {
       fetchPolicy: 'network-only',
     })
       .then(({ data }) => {
-        console.log('contract data: ', data);
         setLcActivities(data);
         setLoading(false);
       })
@@ -100,7 +93,6 @@ export default function ContractDetail() {
       fetchPolicy: 'network-only',
     })
       .then(({ data }) => {
-        console.log('contract data: ', data);
         setLcPayment(data);
         setLoading(false);
       })
@@ -132,7 +124,7 @@ export default function ContractDetail() {
               <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
                 <Grid item xs={12}>
                   <Typography className="font-semibold">
-                    Sales contract actors
+                    Stakeholders
                   </Typography>
                   <TableContainer component={Paper}>
                     <Table
@@ -237,13 +229,36 @@ export default function ContractDetail() {
                               Contract status
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <FormControlLabel
-                                key={undefined}
-                                control={
-                                  <Checkbox checked={item?.activate ?? false} />
+                              <Tooltip
+                                title={
+                                  LETTER_OF_CREDIT_STATUS_CONFIG[item?.status]
+                                    ?.hint
                                 }
-                                label={undefined}
-                              />
+                                placement="right"
+                              >
+                                <div
+                                  style={{
+                                    backgroundColor:
+                                      LETTER_OF_CREDIT_STATUS_CONFIG[
+                                        item?.status
+                                      ]?.bgColor,
+                                    color:
+                                      LETTER_OF_CREDIT_STATUS_CONFIG[
+                                        item?.status
+                                      ]?.color,
+                                    padding: '8px 10px',
+                                    borderRadius: '4px',
+                                    fontWeight: 600,
+                                    whiteSpace: 'nowrap',
+                                    width: 'fit-content',
+                                  }}
+                                >
+                                  {
+                                    LETTER_OF_CREDIT_STATUS_CONFIG[item?.status]
+                                      ?.title
+                                  }
+                                </div>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -540,12 +555,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -599,12 +616,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -640,7 +659,7 @@ export default function ContractDetail() {
                 >
                   <Grid item xs={12}>
                     <Typography className="font-semibold">
-                      L/C rejection
+                      L/C document uploaded
                     </Typography>
                     <TableContainer component={Paper}>
                       <Table
@@ -658,12 +677,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -689,12 +710,14 @@ export default function ContractDetail() {
                               Document hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${IPFS_URL}/${item?.documentHash}`}
-                                target="_blank"
-                              >
-                                {item?.documentHash}
-                              </Link>
+                              <Tooltip title="View in IPFS">
+                                <Link
+                                  href={`${IPFS_URL}/${item?.documentHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.documentHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                         </TableBody>
@@ -734,12 +757,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -829,12 +854,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -912,12 +939,14 @@ export default function ContractDetail() {
                               Transaction Hash
                             </TableCell>
                             <TableCell component="th" scope="row">
-                              <Link
-                                href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
-                                target="_blank"
-                              >
-                                {item?.transactionHash}
-                              </Link>
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
                             </TableCell>
                           </TableRow>
                           <TableRow
@@ -956,6 +985,108 @@ export default function ContractDetail() {
                             </TableCell>
                             <TableCell component="th" scope="row">
                               {item?.importer}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableContainer>
+                  </Grid>
+                </Grid>
+              </div>
+            </>
+          ))}
+          {LcActivities?.lcStatusChangeds?.map((item) => (
+            <>
+              <div className="bg-slate-50 m-5 rounded-2xl flex">
+                <Grid
+                  container
+                  rowSpacing={1}
+                  columnSpacing={1}
+                  className="m-3"
+                >
+                  <Grid item xs={12}>
+                    <Typography className="font-semibold">
+                      L/C status update
+                    </Typography>
+                    <TableContainer component={Paper}>
+                      <Table
+                        sx={{ width: '60', whiteSpace: 'nowrap' }}
+                        size="small"
+                        aria-label="a dense table"
+                      >
+                        <TableBody>
+                          <TableRow
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              Transaction Hash
+                            </TableCell>
+                            <TableCell component="th" scope="row">
+                              <Tooltip title="View in Fantomscan">
+                                <Link
+                                  href={`${BLOCKCHAIN_SCAN_URL}/tx/${item?.transactionHash}`}
+                                  target="_blank"
+                                >
+                                  {item?.transactionHash}
+                                </Link>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              L/C status update
+                            </TableCell>
+                            <TableCell>
+                              <Tooltip
+                                title={
+                                  LETTER_OF_CREDIT_STATUS_CONFIG[item?.status]
+                                    ?.hint
+                                }
+                                placement="right"
+                              >
+                                <div
+                                  style={{
+                                    backgroundColor:
+                                      LETTER_OF_CREDIT_STATUS_CONFIG[
+                                        item?.status
+                                      ]?.bgColor,
+                                    color:
+                                      LETTER_OF_CREDIT_STATUS_CONFIG[
+                                        item?.status
+                                      ]?.color,
+                                    padding: '8px 10px',
+                                    borderRadius: '4px',
+                                    fontWeight: 600,
+                                    whiteSpace: 'nowrap',
+                                    width: 'fit-content',
+                                  }}
+                                >
+                                  {
+                                    LETTER_OF_CREDIT_STATUS_CONFIG[item?.status]
+                                      ?.title
+                                  }
+                                </div>
+                              </Tooltip>
+                            </TableCell>
+                          </TableRow>
+                          <TableRow
+                            sx={{
+                              '&:last-child td, &:last-child th': { border: 0 },
+                            }}
+                          >
+                            <TableCell component="th" scope="row">
+                              Timestamp
+                            </TableCell>
+                            <TableCell component="th" scope="row">
+                              {new Date(
+                                parseInt(item?.blockTimestamp) * 1000,
+                              ).toDateString()}
                             </TableCell>
                           </TableRow>
                         </TableBody>

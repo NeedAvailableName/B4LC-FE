@@ -1,15 +1,11 @@
-import React from 'react';
-import { AiOutlinePlusCircle } from 'react-icons/ai';
 import Link from 'next/link';
+import React from 'react';
 // import { Toggle } from "../components";
+import { Typography } from '@mui/material';
 import Image from 'next/image';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { HiOutlineDocumentPlus } from 'react-icons/hi2';
 import { useDisconnect } from 'wagmi';
-import { Button, Typography } from '@mui/material';
-import { signOut } from 'next-auth/react';
-import AppDropDown from '../components/AppDropDown';
 import Logo from '../assets/LC_Logo.png';
+import AppDropDown from '../components/AppDropDown';
 
 interface IHeader {
   search?: React.Dispatch<React.SetStateAction<string>>;

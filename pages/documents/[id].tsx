@@ -1,35 +1,28 @@
-import axios from 'axios';
-import Layout from '../../layout';
-import { useSession } from 'next-auth/react';
-import {
-  Configs,
-  DOCUMENT_STATUS,
-  DOCUMENT_STATUS_CONFIG,
-  LETTER_OF_CREDIT_STATUS,
-  SALES_CONTRACT_STATUS,
-} from '../../app-configs';
-import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
 import {
   Button,
   CircularProgress,
   Grid,
-  Paper,
   Table,
   TableBody,
   TableCell,
-  TableContainer,
-  TableHead,
   TableRow,
   Tooltip,
-  Typography,
 } from '@mui/material';
+import axios from 'axios';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  Configs,
+  DOCUMENT_STATUS,
+  DOCUMENT_STATUS_CONFIG,
+} from '../../app-configs';
 import AppAlert from '../../components/AppAlert';
-import { IDocument } from '../../types';
-import PdfViewer from '../../components/PdfViewer';
-import { IcEyePreview } from '../../assets/svgs';
 import AppSelect from '../../components/AppSelect';
+import PdfViewer from '../../components/PdfViewer/index';
 import { isExist } from '../../helpers/check';
+import Layout from '../../layout';
+import { IDocument } from '../../types';
 
 export default function DocumentDetail() {
   const router = useRouter();
@@ -58,7 +51,6 @@ export default function DocumentDetail() {
       );
       if (response.data) {
         setLoading(false);
-        console.log('res: ', response.data);
         setCurLC(response.data);
         const trueKeys = Object.keys(
           response.data.salesContract.requiredDocument,
@@ -83,7 +75,6 @@ export default function DocumentDetail() {
       });
       if (response.data) {
         setLoading(false);
-        console.log('res: ', response.data);
         setCurDocument(response.data);
       }
     } catch (err) {
@@ -138,6 +129,51 @@ export default function DocumentDetail() {
     }
   };
 
+  const rejectDocument = async () => {
+    try {
+      let doc = '';
+      switch (docType) {
+        case 'invoice':
+          doc = 'invoices';
+          break;
+        case 'bill_of_exchange':
+          doc = 'billofexchanges';
+          break;
+        case 'bill_of_lading':
+          doc = 'billofladings';
+          break;
+        case 'certificate_of_origin':
+          doc = 'certificateoforigins';
+          break;
+        case 'insurance':
+          doc = 'insurances';
+          break;
+        case 'package_list':
+          doc = 'packagelists';
+          break;
+        case 'quantity_quality_certificate':
+          doc = 'quantityqualitycretificates';
+          break;
+      }
+      const response = await axios.patch(
+        `${Configs.BASE_API}/${doc}/${id}/reject`,
+        {},
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
+        },
+      );
+      if (response.data) {
+        setSuccess(response.data.message);
+        getDocumentDetail();
+      }
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
   const handleDocTypeChange = (value: string) => {
     setDocType(value);
     switch (value) {
@@ -174,43 +210,40 @@ export default function DocumentDetail() {
     }
   }, [status, id]);
 
-  const documentDetailInfo = useMemo(() => {
-    if (!detailDoc) return [];
-    return [
-      {
-        name: 'Status',
-        info: (
-          <Tooltip
-            title={DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.hint}
-            placement="left"
+  const documentDetailInfo = [
+    {
+      name: 'Status',
+      info: (
+        <Tooltip
+          title={DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.hint}
+          placement="left"
+        >
+          <div
+            style={{
+              backgroundColor:
+                DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.bgColor,
+              color: DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.color,
+              padding: '8px 10px',
+              borderRadius: '4px',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              width: 'fit-content',
+            }}
           >
-            <div
-              style={{
-                backgroundColor:
-                  DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.bgColor,
-                color: DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.color,
-                padding: '8px 10px',
-                borderRadius: '4px',
-                fontWeight: 600,
-                whiteSpace: 'nowrap',
-                width: 'fit-content',
-              }}
-            >
-              {DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.title}
-            </div>
-          </Tooltip>
-        ),
-      },
-      {
-        name: 'Document file',
-        info: (
-          <a href={detailDoc?.file_path} target="_blank">
-            {detailDoc?.file_path?.split('/').pop()}
-          </a>
-        ),
-      },
-    ].filter((docInfo) => isExist(docInfo));
-  }, [detailDoc]);
+            {DOCUMENT_STATUS_CONFIG[detailDoc?.status]?.title}
+          </div>
+        </Tooltip>
+      ),
+    },
+    {
+      name: 'Document file',
+      info: (
+        <a href={detailDoc?.file_path} target="_blank">
+          {detailDoc?.file_path?.split('/').pop()}
+        </a>
+      ),
+    },
+  ];
 
   detailDoc &&
     Object.entries(detailDoc).map(([key, value]) => {
@@ -221,7 +254,6 @@ export default function DocumentDetail() {
         });
       }
     });
-
   return (
     <Layout>
       {loading ? (
@@ -233,7 +265,6 @@ export default function DocumentDetail() {
           {success && <AppAlert severity="success" message={success} />}
           {error && <AppAlert severity="error" message={error} />}
           <div className="bg-[#F4F7FF] m-5 rounded-2xl flex justify-center">
-            {/* <form onSubmit={handleSubmit} className="w-full"> */}
             <Grid container rowSpacing={1} columnSpacing={1} className="m-3">
               <Grid item xs={12} className="">
                 <div className="rounded-[10px] shadow-custom h-dvh bg-gray justify-center items-center content-center bg-white">
@@ -267,23 +298,6 @@ export default function DocumentDetail() {
                 >
                   <TableBody>
                     {detailDoc &&
-                      // Object.entries(detailDoc).map(([key, value]) => (
-                      //   <TableRow
-                      //     key={key}
-                      //     sx={{
-                      //       '&:last-child td, &:last-child th': { border: 0 },
-                      //     }}
-                      //   >
-                      //     <TableCell component="th" scope="row">
-                      //       {key}
-                      //     </TableCell>
-                      //     {typeof value != 'object' && (
-                      //       <TableCell component="th" scope="row">
-                      //         {value}
-                      //       </TableCell>
-                      //     )}
-                      //   </TableRow>
-                      // ))
                       documentDetailInfo.map((item) => (
                         <TableRow
                           key={item.name}
@@ -303,17 +317,26 @@ export default function DocumentDetail() {
                 </Table>
               </Grid>
             </Grid>
-            {/* </form> */}
           </div>
           <div className="m-5 rounded-2xl justify-center flex">
             {(data?.address == curLC?.salesContract?.advisingBankAddress ||
               data?.address == curLC?.salesContract?.issuingBankAddress) &&
               detailDoc?.status === DOCUMENT_STATUS.USER_UPLOADED && (
                 <Button
-                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300"
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={approveDocument}
                 >
                   Approve Document
+                </Button>
+              )}
+            {(data?.address == curLC?.salesContract?.advisingBankAddress ||
+              data?.address == curLC?.salesContract?.issuingBankAddress) &&
+              detailDoc?.status === DOCUMENT_STATUS.USER_UPLOADED && (
+                <Button
+                  className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
+                  onClick={rejectDocument}
+                >
+                  Reject Document
                 </Button>
               )}
           </div>
