@@ -1,8 +1,10 @@
 export const Configs = {
-  BASE_URL: 'http://localhost:3000',
-  BASE_API: 'http://localhost:8000',
-  // BASE_API: 'http://35.247.160.15:8000',
-  OCR_API: 'https://ocr-template.onrender.com',
+  // BASE_URL: 'http://localhost:3000',
+  BASE_URL: 'https://b4-lc-fe.vercel.app/',
+  // BASE_API: 'http://localhost:8000',
+  BASE_API: 'http://35.247.160.15:8000',
+  // OCR_API: 'https://ocr-template.onrender.com',
+  OCR_API: 'http://35.247.160.15:8089',
 };
 export const TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
