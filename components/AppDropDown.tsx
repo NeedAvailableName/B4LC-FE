@@ -57,7 +57,7 @@ export default function AppDropDown() {
         <MenuItem
           onClick={() => {
             signOut({
-              callbackUrl: Configs.BASE_URL,
+              callbackUrl: process.env.NEXT_PUBLIC_BASE_URL,
             });
             disconnect();
           }}

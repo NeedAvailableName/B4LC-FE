@@ -6,15 +6,14 @@ import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import * as React from 'react';
-import { Configs, SALES_CONTRACT_STATUS_CONFIG } from '../app-configs';
+import { SALES_CONTRACT_STATUS_CONFIG } from '../app-configs';
 import AppAlert from '../components/AppAlert';
 import AppTablePagination from '../components/AppTablePagination';
 import NoDataTable from '../components/NoDataTable';
-import api from '../utils/api';
+import { api } from '../utils/api';
 
 export default function SalesContractsList() {
   const { data, status } = useSession();
@@ -24,11 +23,6 @@ export default function SalesContractsList() {
 
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const emptyRows =
-    page > 0
-      ? Math.max(0, (1 + page) * rowsPerPage - salesContractsList.length)
-      : 0;
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -47,22 +41,6 @@ export default function SalesContractsList() {
   const handleOnClick = (contract) => {
     router.push(`/sales-contracts/${contract.salescontract_id}`);
   };
-  // const getSalesContractsList = async () => {
-  //   try {
-  //     const response = await axios.get(`${Configs.BASE_API}/salescontracts`, {
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         Authorization: `Bearer ${data?.address}`,
-  //       },
-  //     });
-  //     if (response.data) {
-  //       setSalesContractsList(response.data);
-  //     }
-  //   } catch (err) {
-  //     console.log(err);
-  //     setError(err.message);
-  //   }
-  // };
 
   const getSalesContractsList = async () => {
     try {

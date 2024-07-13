@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  CircularProgress,
   Container,
   Divider,
   FormControlLabel,
@@ -28,20 +29,19 @@ import AppRadio from '../components/AppRadio';
 import AppSelect from '../components/AppSelect';
 import AppSelectDate from '../components/AppSelectDate';
 import AppTextInput from '../components/AppTextInput';
+import { api } from '../utils/api';
 
 export default function NewSalesContract() {
-  const { data, status } = useSession();
+  const { data } = useSession();
   const router = useRouter();
-  const formControl = useFormControl();
   const [loading, setLoading] = useState<Boolean>(false);
   const [customerList, setCustomerList] = useState<string[]>([]);
   const [bankList, setBankList] = useState<string[]>([]);
-  const [deadline, setDeadline] = useState();
 
   const getAllCustomer = async () => {
     try {
       // setLoading(true);
-      const response = await axios.get(`${Configs.BASE_API}/user/customers`, {
+      const response = await api.get(`/user/customers`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -59,7 +59,7 @@ export default function NewSalesContract() {
   const getAllBank = async () => {
     try {
       // setLoading(true);
-      const response = await axios.get(`${Configs.BASE_API}/user/banks`, {
+      const response = await api.get(`/user/banks`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -151,15 +151,6 @@ export default function NewSalesContract() {
     }));
   };
 
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]:
-        name === 'importer' ? value : type === 'checkbox' ? checked : value,
-    }));
-  };
-
   const handleCommodityChange = (item) => {
     const commodity = item.map(({ id, ...rest }) => rest);
     setFormData((prevState) => ({
@@ -231,16 +222,12 @@ export default function NewSalesContract() {
       token
         ? (formData.token = token.address)
         : (formData.token = '0x0000000000000000000000000000000000000000');
-      const response = await axios.post(
-        `${Configs.BASE_API}/salescontracts/create`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.post(`/salescontracts/create`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setSuccess(response.data.message);
         router.push(`/sales-contracts/${response.data.salescontract_id}`);
@@ -255,7 +242,7 @@ export default function NewSalesContract() {
     <Layout>
       {loading ? (
         <div className="bg-[#F4F7FF] m-5 h-dvh flex items-center justify-center rounded-2xl">
-          <AppLoading wrapperStyle={{ width: '30px' }} />
+          <CircularProgress />
         </div>
       ) : (
         <>

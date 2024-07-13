@@ -12,7 +12,7 @@ export default function AppSelectDate({ onChange, ...props }) {
 
   return (
     <DatePicker
-      className="bg-white border-black"
+      className="bg-white border-black border rounded-sm"
       selected={startDate}
       onChange={handleChange}
       {...props}

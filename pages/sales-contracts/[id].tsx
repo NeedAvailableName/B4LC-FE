@@ -1,13 +1,3 @@
-import axios from 'axios';
-import Layout from '../../layout';
-import { useSession } from 'next-auth/react';
-import {
-  Configs,
-  SALES_CONTRACT_STATUS,
-  SALES_CONTRACT_STATUS_CONFIG,
-} from '../../app-configs';
-import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -16,20 +6,29 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getContract } from '../../utils/contract';
-import { GET_CREATE_LC_EVENT } from '../../queries';
-import ApolloClient from '../../clients/apollo';
-import TableContainer from '@mui/material/TableContainer';
+import CircularProgress from '@mui/material/CircularProgress';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import CircularProgress from '@mui/material/CircularProgress';
-import { ISalesContract } from '../../types';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
+import { useEffect, useRef, useState } from 'react';
+import {
+  SALES_CONTRACT_STATUS,
+  SALES_CONTRACT_STATUS_CONFIG,
+} from '../../app-configs';
+import ApolloClient from '../../clients/apollo';
 import AppAlert from '../../components/AppAlert';
 import AppRejectModal from '../../components/AppRejectModal';
+import Layout from '../../layout';
+import { GET_CREATE_LC_EVENT } from '../../queries';
+import { ISalesContract } from '../../types';
+import { api } from '../../utils/api';
+import { getContract } from '../../utils/contract';
 
 export default function SalesContractDetail() {
   const [curSalesContract, setCurSalesContract] = useState<ISalesContract>();
@@ -101,8 +100,8 @@ export default function SalesContractDetail() {
           .then(async ({ data }) => {
             address = data?.createLetterOfCredits[0]?.TradeFinanceAddress;
             if (address) {
-              const response = await axios.post(
-                `${Configs.BASE_API}/letterofcredits/create`,
+              const response = await api.post(
+                `/letterofcredits/create`,
                 { salesContractID: id, address: address },
                 {
                   headers: {
@@ -133,8 +132,8 @@ export default function SalesContractDetail() {
   };
   const approveSalesContract = async () => {
     try {
-      const response = await axios.patch(
-        `${Configs.BASE_API}/salescontracts/${id}/approve`,
+      const response = await api.patch(
+        `/salescontracts/${id}/approve`,
         {},
         {
           headers: {
@@ -155,22 +154,22 @@ export default function SalesContractDetail() {
 
   const rejectSalesContract = async (reason) => {
     try {
-      // setLoading(true);
-      // const response = await axios.patch(
-      //   `${Configs.BASE_API}/salescontracts/${id}/reject`,
-      //   { reason: reason },
-      //   {
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       Authorization: `Bearer ${data?.address}`,
-      //     },
-      //   },
-      // );
-      // if (response.data) {
-      //   setLoading(false);
-      //   setSuccess(response.data.message);
-      //   getSalesContractDetail();
-      // }
+      setLoading(true);
+      const response = await api.patch(
+        `/salescontracts/${id}/reject`,
+        { reason: reason },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${data?.address}`,
+          },
+        },
+      );
+      if (response.data) {
+        setLoading(false);
+        setSuccess(response.data.message);
+        getSalesContractDetail();
+      }
     } catch (e) {
       setLoading(false);
       console.log(e);
@@ -180,15 +179,12 @@ export default function SalesContractDetail() {
 
   const getSalesContractDetail = async () => {
     try {
-      const response = await axios.get(
-        `${Configs.BASE_API}/salescontracts/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.get(`/salescontracts/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setCurSalesContract(response.data);
       }
@@ -200,15 +196,12 @@ export default function SalesContractDetail() {
 
   const deleteSalesContract = async () => {
     try {
-      const response = await axios.delete(
-        `${Configs.BASE_API}/salescontracts/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.delete(`/salescontracts/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setSuccess(response.data.message);
         router.push(`/sales-contracts`);
@@ -614,7 +607,8 @@ export default function SalesContractDetail() {
           <div className="m-5 rounded-2xl justify-center flex">
             {/* importer edit the salescontracts */}
             {data?.address == curSalesContract?.importerAddress &&
-              curSalesContract?.status == SALES_CONTRACT_STATUS.CREATED && (
+              curSalesContract?.status !=
+                SALES_CONTRACT_STATUS.BANK_APPROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={() => router.push(`/sales-contracts/update/${id}`)}
@@ -623,7 +617,8 @@ export default function SalesContractDetail() {
                 </Button>
               )}
             {data?.address == curSalesContract?.importerAddress &&
-              curSalesContract?.status == SALES_CONTRACT_STATUS.CREATED && (
+              curSalesContract?.status !=
+                SALES_CONTRACT_STATUS.BANK_APPROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={() => deleteSalesContract()}
@@ -632,7 +627,8 @@ export default function SalesContractDetail() {
                 </Button>
               )}
             {data?.address == curSalesContract?.exporterAddress &&
-              curSalesContract?.status == SALES_CONTRACT_STATUS.CREATED && (
+              curSalesContract?.status !=
+                SALES_CONTRACT_STATUS.EXPORTER_APPROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={() => approveSalesContract()}

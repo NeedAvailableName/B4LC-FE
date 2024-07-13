@@ -21,6 +21,7 @@ import {
 import AppAlert from '../components/AppAlert';
 import AppTablePagination from '../components/AppTablePagination';
 import NoDataTable from '../components/NoDataTable';
+import { api } from '../utils/api';
 
 export default function LcDocumentList() {
   const { data, status } = useSession();
@@ -29,9 +30,6 @@ export default function LcDocumentList() {
   const router = useRouter();
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  const emptyRows =
-    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - LcList.length) : 0;
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -55,7 +53,7 @@ export default function LcDocumentList() {
   };
   const getLcList = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/letterofcredits`, {
+      const response = await api.get(`/letterofcredits`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,

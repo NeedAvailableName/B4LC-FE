@@ -6,22 +6,20 @@ import {
   TableBody,
   TableCell,
   TableRow,
-  TextField,
   Typography,
 } from '@mui/material';
-import axios from 'axios';
+import classNames from 'classnames/bind';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { Configs } from '../../../app-configs';
 import { IcEyePreview } from '../../../assets/svgs';
 import AppAlert from '../../../components/AppAlert';
 import AppFileInput from '../../../components/AppFileInput';
 import AppSelect from '../../../components/AppSelect';
 import PdfViewer from '../../../components/PdfViewer/index';
 import Layout from '../../../layout';
-import classNames from 'classnames/bind';
+import { api, ocr } from '../../../utils/api';
 import styles from './[id].module.sass';
 const cx = classNames.bind(styles);
 
@@ -50,15 +48,12 @@ export default function UploadDocument() {
   const getLcDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${Configs.BASE_API}/letterofcredits/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.get(`/letterofcredits/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setLoading(false);
         setCurLC(response.data);
@@ -86,10 +81,7 @@ export default function UploadDocument() {
       _documentDataForm.append('file', modifiedFile);
     });
     try {
-      const response = await axios.post(
-        `${Configs.BASE_API}/files/upload`,
-        _documentDataForm,
-      );
+      const response = await api.post(`/files/upload`, _documentDataForm);
       if (response.data) {
         setFileLoading(false);
         setFilePath(response.data);
@@ -108,10 +100,7 @@ export default function UploadDocument() {
       image_url: await uploadToCloud(uploadedFiles),
     };
     try {
-      const response = await axios.post(
-        `${Configs.OCR_API}/ocr_document`,
-        OCRformData,
-      );
+      const response = await ocr.post(`/ocr_document`, OCRformData);
       if (response.data) {
         setOCRLoading(false);
         setOCRformData(response.data.results);
@@ -162,16 +151,12 @@ export default function UploadDocument() {
           doc = 'quantityqualitycretificates';
           break;
       }
-      const response = await axios.post(
-        `${Configs.BASE_API}/${doc}/create/${id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.post(`/${doc}/create/${id}`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setSuccess(response.data.message);
         router.push('/documents');

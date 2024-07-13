@@ -12,14 +12,13 @@ import {
   TableRow,
   TextField,
 } from '@mui/material';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
-import { Configs } from '../../../../app-configs';
 import AppAlert from '../../../../components/AppAlert';
 import AppSelect from '../../../../components/AppSelect';
 import Layout from '../../../../layout';
-import { useRouter } from 'next/router';
+import { api } from '../../../../utils/api';
 export default function CreateUser() {
   const { data } = useSession();
   const router = useRouter();
@@ -35,8 +34,8 @@ export default function CreateUser() {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        `${Configs.BASE_API}/user/change/account`,
+      const response = await api.put(
+        `/user/change/account`,
         {
           user,
         },

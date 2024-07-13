@@ -8,21 +8,16 @@ import {
   TableRow,
   Tooltip,
 } from '@mui/material';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  Configs,
-  DOCUMENT_STATUS,
-  DOCUMENT_STATUS_CONFIG,
-} from '../../app-configs';
+import { useEffect, useState } from 'react';
+import { DOCUMENT_STATUS, DOCUMENT_STATUS_CONFIG } from '../../app-configs';
 import AppAlert from '../../components/AppAlert';
 import AppSelect from '../../components/AppSelect';
 import PdfViewer from '../../components/PdfViewer/index';
-import { isExist } from '../../helpers/check';
 import Layout from '../../layout';
 import { IDocument } from '../../types';
+import { api } from '../../utils/api';
 
 export default function DocumentDetail() {
   const router = useRouter();
@@ -40,15 +35,12 @@ export default function DocumentDetail() {
   const getLcDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${Configs.BASE_API}/letterofcredits/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.get(`/letterofcredits/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setLoading(false);
         setCurLC(response.data);
@@ -67,7 +59,7 @@ export default function DocumentDetail() {
   const getDocumentDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`${Configs.BASE_API}/documents/${id}`, {
+      const response = await api.get(`/documents/${id}`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,
@@ -86,6 +78,7 @@ export default function DocumentDetail() {
 
   const approveDocument = async () => {
     try {
+      setLoading(true);
       let doc = '';
       switch (docType) {
         case 'invoice':
@@ -110,8 +103,8 @@ export default function DocumentDetail() {
           doc = 'quantityqualitycretificates';
           break;
       }
-      const response = await axios.patch(
-        `${Configs.BASE_API}/${doc}/${id}/approve`,
+      const response = await api.patch(
+        `/${doc}/${id}/approve`,
         {},
         {
           headers: {
@@ -121,16 +114,19 @@ export default function DocumentDetail() {
         },
       );
       if (response.data) {
+        setLoading(false);
         setSuccess(response.data.message);
         getDocumentDetail();
       }
     } catch (err) {
+      setLoading(false);
       setError(err.message);
     }
   };
 
   const rejectDocument = async () => {
     try {
+      setLoading(true);
       let doc = '';
       switch (docType) {
         case 'invoice':
@@ -155,8 +151,8 @@ export default function DocumentDetail() {
           doc = 'quantityqualitycretificates';
           break;
       }
-      const response = await axios.patch(
-        `${Configs.BASE_API}/${doc}/${id}/reject`,
+      const response = await api.patch(
+        `/${doc}/${id}/reject`,
         {},
         {
           headers: {
@@ -166,10 +162,12 @@ export default function DocumentDetail() {
         },
       );
       if (response.data) {
+        setLoading(false);
         setSuccess(response.data.message);
         getDocumentDetail();
       }
     } catch (err) {
+      setLoading(false);
       setError(err.message);
     }
   };
@@ -238,9 +236,11 @@ export default function DocumentDetail() {
     {
       name: 'Document file',
       info: (
-        <a href={detailDoc?.file_path} target="_blank">
-          {detailDoc?.file_path?.split('/').pop()}
-        </a>
+        <Tooltip title="View in cloud" placement="right">
+          <a href={detailDoc?.file_path} target="_blank">
+            {detailDoc?.file_path?.split('/').pop()}
+          </a>
+        </Tooltip>
       ),
     },
   ];
@@ -321,7 +321,7 @@ export default function DocumentDetail() {
           <div className="m-5 rounded-2xl justify-center flex">
             {(data?.address == curLC?.salesContract?.advisingBankAddress ||
               data?.address == curLC?.salesContract?.issuingBankAddress) &&
-              detailDoc?.status === DOCUMENT_STATUS.USER_UPLOADED && (
+              detailDoc?.status !== DOCUMENT_STATUS.APRROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={approveDocument}
@@ -331,7 +331,7 @@ export default function DocumentDetail() {
               )}
             {(data?.address == curLC?.salesContract?.advisingBankAddress ||
               data?.address == curLC?.salesContract?.issuingBankAddress) &&
-              detailDoc?.status === DOCUMENT_STATUS.USER_UPLOADED && (
+              detailDoc?.status !== DOCUMENT_STATUS.REJECTED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={rejectDocument}

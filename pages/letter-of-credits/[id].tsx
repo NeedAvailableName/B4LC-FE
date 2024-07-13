@@ -1,28 +1,8 @@
-import axios from 'axios';
-import Layout from '../../layout';
-import { useSession } from 'next-auth/react';
 import {
-  CONTRACT_ADDRESS,
-  Configs,
-  LETTER_OF_CREDIT_STATUS,
-  LETTER_OF_CREDIT_STATUS_CONFIG,
-  PAYMENT_METHOD,
-  SALES_CONTRACT_STATUS,
-  SALES_CONTRACT_STATUS_CONFIG,
-  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_BANK,
-  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_CRYPTO,
-} from '../../app-configs';
-import { useRouter } from 'next/router';
-import { useEffect, useRef, useState } from 'react';
-import {
-  Box,
   Button,
   Checkbox,
   CircularProgress,
-  Container,
-  Divider,
   FormControlLabel,
-  FormGroup,
   Grid,
   Paper,
   Table,
@@ -34,19 +14,32 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { getContract, getTokenContract } from '../../utils/contract';
-import { BLOCKCHAIN_SCAN_URL } from '../../app-configs';
+import { parseUnits } from 'ethers';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { useEffect, useRef, useState } from 'react';
+import {
+  BLOCKCHAIN_SCAN_URL,
+  CONTRACT_ADDRESS,
+  LETTER_OF_CREDIT_STATUS,
+  LETTER_OF_CREDIT_STATUS_CONFIG,
+  PAYMENT_METHOD,
+  SALES_CONTRACT_STATUS_CONFIG,
+  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_BANK,
+  UPDATE_LETTER_OF_CREDIT_STATUS_VIA_CRYPTO,
+} from '../../app-configs';
 import AppAlert from '../../components/AppAlert';
-import { ethers, parseUnits } from 'ethers';
+import AppRejectModal from '../../components/AppRejectModal';
+import AppSelectModal from '../../components/AppSelectModal';
+import Layout from '../../layout';
 import {
   ICommodity,
   IRequiredDocument,
   IShipmentInformation,
 } from '../../types';
-import AppModal from '../../components/AppModal/AppModal';
-import AppRejectModal from '../../components/AppRejectModal';
-import AppSelectModal from '../../components/AppSelectModal';
+import { api } from '../../utils/api';
+import { getContract, getTokenContract } from '../../utils/contract';
 interface ILC {
   letterOfCredit?: {
     LcAddress: string;
@@ -102,8 +95,8 @@ export default function LetterOfCreditDetail() {
         );
         await tx.wait();
         if (tx) {
-          const response = await axios.patch(
-            `${Configs.BASE_API}/letterofcredits/${id}/status`,
+          const response = await api.patch(
+            `/letterofcredits/${id}/status`,
             { status: LETTER_OF_CREDIT_STATUS.FUND_ESCROWED },
             {
               headers: {
@@ -137,8 +130,8 @@ export default function LetterOfCreditDetail() {
       const tx = await contract.payFund(curLC?.letterOfCredit.LcAddress);
       await tx.wait();
       if (tx) {
-        const response = await axios.patch(
-          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+        const response = await api.patch(
+          `/letterofcredits/${id}/status`,
           { status: LETTER_OF_CREDIT_STATUS.FUND_PAID },
           {
             headers: {
@@ -166,8 +159,8 @@ export default function LetterOfCreditDetail() {
       const tx = await contract.refundFund(curLC?.letterOfCredit?.LcAddress);
       await tx.wait();
       if (tx) {
-        const response = await axios.patch(
-          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+        const response = await api.patch(
+          `/letterofcredits/${id}/status`,
           { status: LETTER_OF_CREDIT_STATUS.FUND_REVERTED },
           {
             headers: {
@@ -198,8 +191,8 @@ export default function LetterOfCreditDetail() {
       );
       await tx.wait();
       if (tx) {
-        const response = await axios.patch(
-          `${Configs.BASE_API}/letterofcredits/${id}/status`,
+        const response = await api.patch(
+          `/letterofcredits/${id}/status`,
           { status: status },
           {
             headers: {
@@ -230,8 +223,8 @@ export default function LetterOfCreditDetail() {
       );
       await tx.wait();
       if (tx) {
-        const response = await axios.patch(
-          `${Configs.BASE_API}/letterofcredits/${id}/approve`,
+        const response = await api.patch(
+          `/letterofcredits/${id}/approve`,
           {},
           {
             headers: {
@@ -264,8 +257,8 @@ export default function LetterOfCreditDetail() {
       );
       await tx.wait();
       if (tx) {
-        const response = await axios.patch(
-          `${Configs.BASE_API}/letterofcredits/${id}/reject`,
+        const response = await api.patch(
+          `/letterofcredits/${id}/reject`,
           { reason: reason },
           {
             headers: {
@@ -292,15 +285,12 @@ export default function LetterOfCreditDetail() {
   const getLcDetail = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(
-        `${Configs.BASE_API}/letterofcredits/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.get(`/letterofcredits/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setLoading(false);
         setcurLC(response.data);
@@ -815,8 +805,8 @@ export default function LetterOfCreditDetail() {
           </div>
           <div className="m-5 rounded-2xl justify-center flex">
             {data?.address == curLC?.salesContract?.advisingBankAddress &&
-              curLC?.letterOfCredit?.status ==
-                LETTER_OF_CREDIT_STATUS.CREATED && (
+              curLC?.letterOfCredit?.status !=
+                LETTER_OF_CREDIT_STATUS.ADVISING_BANK_APPROVED && (
                 <Button
                   className="bg-sky-400 text-white font-semibold hover:bg-indigo-300 m-5"
                   onClick={approveLC}

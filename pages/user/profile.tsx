@@ -16,12 +16,11 @@ import {
   Typography,
 } from '@mui/material';
 import { red } from '@mui/material/colors';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { Configs } from '../../app-configs';
 import AppAlert from '../../components/AppAlert';
 import Layout from '../../layout';
+import { api } from '../../utils/api';
 
 export default function UserProfile() {
   const { data } = useSession();
@@ -37,7 +36,7 @@ export default function UserProfile() {
 
   const getUserProfile = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/user`, {
+      const response = await api.get(`/user`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,
@@ -67,8 +66,8 @@ export default function UserProfile() {
 
   const handleSave = async () => {
     try {
-      const response = await axios.put(
-        `${Configs.BASE_API}/user/change/profile`,
+      const response = await api.put(
+        `/user/change/profile`,
         {
           username: updatedUser.username,
           email: updatedUser.email,

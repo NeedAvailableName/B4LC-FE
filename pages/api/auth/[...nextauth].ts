@@ -1,14 +1,13 @@
 import { IncomingMessage } from 'http';
-import next, { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next';
 import NextAuth, { NextAuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { getCsrfToken } from 'next-auth/react';
 import { SiweMessage } from 'siwe';
-import axios from 'axios';
-import { Configs } from '../../../app-configs';
+import { api } from '../../../utils/api';
 
 const getUserInfo = async (address: string) => {
-  const response = await axios.get(`${Configs.BASE_API}/user`, {
+  const response = await api.get(`/user`, {
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${address}`,
@@ -30,7 +29,7 @@ export function getAuthOptions(req: IncomingMessage): NextAuthOptions {
             process.env.NEXTAUTH_URL ||
             (process.env.VERCEL_URL
               ? `https://${process.env.VERCEL_URL}`
-              : Configs.BASE_URL);
+              : process.env.NEXT_PUBLIC_BASE_URL);
           if (!nextAuthUrl) {
             return null;
           }

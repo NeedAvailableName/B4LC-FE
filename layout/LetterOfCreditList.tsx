@@ -1,19 +1,19 @@
-import * as React from 'react';
+import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { useSession } from 'next-auth/react';
-import axios from 'axios';
-import TableContainer from '@mui/material/TableContainer';
-import Paper from '@mui/material/Paper';
 import { useRouter } from 'next/router';
-import { TablePagination, Tooltip, Typography, styled } from '@mui/material';
+import * as React from 'react';
+import { LETTER_OF_CREDIT_STATUS_CONFIG } from '../app-configs';
 import AppAlert from '../components/AppAlert';
-import { Configs, LETTER_OF_CREDIT_STATUS_CONFIG } from '../app-configs';
-import NoDataTable from '../components/NoDataTable';
 import AppTablePagination from '../components/AppTablePagination';
+import NoDataTable from '../components/NoDataTable';
+import { api } from '../utils/api';
 
 export default function LcList() {
   const { data, status } = useSession();
@@ -42,7 +42,7 @@ export default function LcList() {
   };
   const getLcList = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/letterofcredits`, {
+      const response = await api.get(`/letterofcredits`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,

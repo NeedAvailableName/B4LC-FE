@@ -8,16 +8,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Tabs from '@mui/material/Tabs';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import * as React from 'react';
 import { useRef, useState } from 'react';
-import { Configs } from '../app-configs';
 import AppAlert from '../components/AppAlert';
 import AppTablePagination from '../components/AppTablePagination';
 import AppUpdateUserModal from '../components/AppUpdateUserModal';
 import NoDataTable from '../components/NoDataTable';
+import { api } from '../utils/api';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -53,7 +51,6 @@ export default function UserList() {
   const [customerList, setCustomerList] = React.useState([]);
   const [bankList, setBankList] = React.useState([]);
   const [error, setError] = React.useState(null);
-  const router = useRouter();
   const [value, setValue] = React.useState(0);
 
   const [success, setSuccess] = useState(null);
@@ -64,11 +61,6 @@ export default function UserList() {
   };
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
-
-  //   const emptyRows =
-  //     page > 0
-  //       ? Math.max(0, (1 + page) * rowsPerPage - salesContractsList.length)
-  //       : 0;
 
   const handleChangePage = (
     event: React.MouseEvent<HTMLButtonElement> | null,
@@ -86,7 +78,7 @@ export default function UserList() {
 
   const getUserList = async () => {
     try {
-      const response = await axios.get(`${Configs.BASE_API}/user/all`, {
+      const response = await api.get(`/user/all`, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${data?.address}`,
@@ -104,8 +96,8 @@ export default function UserList() {
 
   const handleSave = async (user) => {
     try {
-      const response = await axios.put(
-        `${Configs.BASE_API}/user/change/account`,
+      const response = await api.put(
+        `/user/change/account`,
         {
           user,
         },

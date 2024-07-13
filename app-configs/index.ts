@@ -2,9 +2,9 @@ export const Configs = {
   // BASE_URL: 'http://localhost:3000',
   BASE_URL: 'https://b4-lc-fe.vercel.app',
   // BASE_API: 'http://localhost:8000',
-  BASE_API: 'http://35.247.160.15:8000',
+  // BASE_API: 'http://35.247.160.15:8000',
   // OCR_API: 'https://ocr-template.onrender.com',
-  OCR_API: 'http://35.247.160.15:8089',
+  // OCR_API: 'http://35.247.160.15:8089',
 };
 export const TOKEN_KEY = 'access_token';
 export const REFRESH_TOKEN_KEY = 'refresh_token';
@@ -69,7 +69,7 @@ export const documentRequired = [
 ];
 export const CONTRACT_ADDRESS = '0x1bfc53c97F08202446Cd759591651A1480fEFc53';
 export const SUB_GRAPH_URL =
-  'https://api.studio.thegraph.com/query/34554/b4lc-testv2/v0.1.2';
+  'https://api.studio.thegraph.com/query/34554/b4lc-testv2/v0.1.3';
 
 export enum PAYMENT_METHOD {
   VIA_BANK = 'Via bank',

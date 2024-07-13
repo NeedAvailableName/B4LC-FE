@@ -10,9 +10,6 @@ import { Configs, UserRole } from '../../app-configs';
 import NestedItem from '../../components/NestedList';
 
 const drawerWidth: number = 200;
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -42,33 +39,33 @@ const Drawer = styled(MuiDrawer, {
 
 const SalesContractsMenu = [
   {
-    nav: `${Configs.BASE_URL}/sales-contracts`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/sales-contracts`,
     name: 'Sales Contracts List',
   },
   {
-    nav: `${Configs.BASE_URL}/sales-contracts/create`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/sales-contracts/create`,
     name: 'New Sales Contract',
   },
 ];
 const LcMenu = [
   {
-    nav: `${Configs.BASE_URL}/letter-of-credits`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/letter-of-credits`,
     name: 'Letter of Credit List',
   },
 ];
 const DocumentMenu = [
   {
-    nav: `${Configs.BASE_URL}/documents`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/documents`,
     name: 'Documents List',
   },
 ];
 const UserMenu = [
   {
-    nav: `${Configs.BASE_URL}/admin`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/admin`,
     name: 'User Account List',
   },
   {
-    nav: `${Configs.BASE_URL}/admin/user/create`,
+    nav: `${process.env.NEXT_PUBLIC_BASE_URL}/admin/user/create`,
     name: 'New User',
   },
 ];

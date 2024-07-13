@@ -9,13 +9,11 @@ import {
 } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
 import CircularProgress from '@mui/material/CircularProgress';
-import axios from 'axios';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import Layout from '.';
 import {
-  Configs,
   cryptoPaymentMethod,
   documentRequired,
   tokenAddress,
@@ -27,6 +25,7 @@ import AppRadio from '../components/AppRadio';
 import AppSelect from '../components/AppSelect';
 import AppSelectDate from '../components/AppSelectDate';
 import AppTextInput from '../components/AppTextInput';
+import { api } from '../utils/api';
 
 export default function UpdateSalesContract() {
   const { data, status } = useSession();
@@ -42,7 +41,7 @@ export default function UpdateSalesContract() {
   const getAllCustomer = async () => {
     try {
       // setLoading(true);
-      const response = await axios.get(`${Configs.BASE_API}/user/customers`, {
+      const response = await api.get(`/user/customers`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -60,7 +59,7 @@ export default function UpdateSalesContract() {
   const getAllBank = async () => {
     try {
       // setLoading(true);
-      const response = await axios.get(`${Configs.BASE_API}/user/banks`, {
+      const response = await api.get(`/user/banks`, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -77,15 +76,12 @@ export default function UpdateSalesContract() {
 
   const defaultFormData = async () => {
     try {
-      const response = await axios.get(
-        `${Configs.BASE_API}/salescontracts/${id}`,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.get(`/salescontracts/${id}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setFormData(response.data);
       }
@@ -213,16 +209,12 @@ export default function UpdateSalesContract() {
       token
         ? formData?.token === token.address
         : formData?.token === '0x0000000000000000000000000000000000000000';
-      const response = await axios.patch(
-        `${Configs.BASE_API}/salescontracts/${id}`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${data?.address}`,
-          },
+      const response = await api.patch(`/salescontracts/${id}`, formData, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${data?.address}`,
         },
-      );
+      });
       if (response.data) {
         setSuccess(response.data.message);
         window.location.href = '/sales-contracts';
