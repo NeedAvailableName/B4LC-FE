@@ -20,7 +20,6 @@ export default function AppCommodityBox({ ...props }) {
       idx === index ? { ...item, [field]: value } : item,
     );
     setFormItems(updatedItems);
-
     props.onChange(updatedItems);
   };
 
@@ -67,7 +66,7 @@ export default function AppCommodityBox({ ...props }) {
                   }
                 />
               </div>
-              <div className="flex items-center">
+              {/* <div className="flex items-center">
                 <Typography className=" mr-4">Unit:</Typography>
                 <AppTextInput
                   placeholder="Enter unit"
@@ -75,7 +74,7 @@ export default function AppCommodityBox({ ...props }) {
                     handleInputChange(index, 'unit', event.target.value)
                   }
                 />
-              </div>
+              </div> */}
               <div onClick={() => removeFormItem(index)}>
                 <MdDeleteForever className="size-8 cursor-pointer" />
               </div>

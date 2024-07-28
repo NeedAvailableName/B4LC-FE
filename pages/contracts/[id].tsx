@@ -382,7 +382,6 @@ export default function ContractDetail() {
                               Description
                             </TableCell>
                             <TableCell>Quantity</TableCell>
-                            <TableCell>Unit</TableCell>
                           </TableRow>
                         </TableHead>
                         <TableBody>
@@ -400,9 +399,6 @@ export default function ContractDetail() {
                               </TableCell>
                               <TableCell component="th" scope="row">
                                 {value?.quantity}
-                              </TableCell>
-                              <TableCell component="th" scope="row">
-                                {value?.unit}
                               </TableCell>
                             </TableRow>
                           ))}

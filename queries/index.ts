@@ -38,7 +38,6 @@ export const GET_CONTRACT_DETAIL = gql`
       commodity {
         description
         quantity
-        unit
       }
       deadline
       documentHash

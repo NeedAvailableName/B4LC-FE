@@ -152,7 +152,7 @@ export default function NewSalesContract() {
   };
 
   const handleCommodityChange = (item) => {
-    const commodity = item.map(({ id, ...rest }) => rest);
+    const commodity = item.map(({ id, ...rest }) => ({ unit: 0, ...rest }));
     setFormData((prevState) => ({
       ...prevState,
       commodity: commodity,

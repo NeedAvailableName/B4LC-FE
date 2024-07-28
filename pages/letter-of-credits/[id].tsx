@@ -569,7 +569,6 @@ export default function LetterOfCreditDetail() {
                       <TableRow>
                         <TableCell sx={{ width: '60%' }}>Description</TableCell>
                         <TableCell>Quantity</TableCell>
-                        <TableCell>Unit</TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -585,9 +584,6 @@ export default function LetterOfCreditDetail() {
                           </TableCell>
                           <TableCell component="th" scope="row">
                             {item?.quantity}
-                          </TableCell>
-                          <TableCell component="th" scope="row">
-                            {item?.unit}
                           </TableCell>
                         </TableRow>
                       ))}
